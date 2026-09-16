@@ -2,33 +2,40 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Logo } from "@/components/shared/Logo";
+import { campus } from "@/content/contact";
 
+/**
+ * Router links throughout, because the footer now points at public pages as
+ * well as at sections of the landing page — "/#campus" has to work from
+ * /contact, not only from "/".
+ */
 const columns = [
   {
     heading: "Academics",
     links: [
-      { label: "Faculty of Science", href: "#academics" },
-      { label: "Management Sciences", href: "#academics" },
-      { label: "Faculty of Engineering", href: "#academics" },
-      { label: "Academic calendar", href: "#admissions" },
+      { label: "Faculty of Science", to: "/#academics" },
+      { label: "Management Sciences", to: "/#academics" },
+      { label: "Faculty of Engineering", to: "/#academics" },
+      { label: "Deans and faculties", to: "/leadership" },
     ],
   },
   {
     heading: "Students",
     links: [
-      { label: "Course registration", href: "#portal" },
-      { label: "Class schedule", href: "#portal" },
-      { label: "Results", href: "#portal" },
-      { label: "Tuition and fees", href: "#portal" },
+      { label: "How to register", to: "/questions#how-to-register-steps" },
+      { label: "What the portal does", to: "/#portal" },
+      { label: "Results and transcripts", to: "/questions#answers" },
+      { label: "Tuition and fees", to: "/questions#answers" },
     ],
   },
   {
     heading: "About",
     links: [
-      { label: "Admissions", href: "#admissions" },
-      { label: "Campus life", href: "#campus" },
-      { label: "Registry office", href: "#campus" },
-      { label: "Contact us", href: "#campus" },
+      { label: "Admissions", to: "/#admissions" },
+      { label: "Leadership", to: "/leadership" },
+      { label: "Campus life", to: "/#campus" },
+      { label: "Questions", to: "/questions" },
+      { label: "Contact us", to: "/contact" },
     ],
   },
 ];
@@ -54,18 +61,26 @@ export function SiteFooter() {
             <ul className="mt-6 space-y-3 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-brand-400" />
-                <span>Tubman Boulevard, Sinkor, Monrovia</span>
+                <span>
+                  {campus.line1}, {campus.line2}
+                </span>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="mt-0.5 size-4 shrink-0 text-brand-400" />
-                <a className="transition hover:text-white" href="mailto:registry@nyenneh.edu">
-                  registry@nyenneh.edu
+                <a
+                  className="transition hover:text-white"
+                  href={`mailto:${campus.generalEmail}`}
+                >
+                  {campus.generalEmail}
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="mt-0.5 size-4 shrink-0 text-brand-400" />
-                <a className="transition hover:text-white" href="tel:+231770000000">
-                  +231 77 000 0000
+                <a
+                  className="transition hover:text-white"
+                  href={`tel:${campus.switchboardDial}`}
+                >
+                  {campus.switchboard}
                 </a>
               </li>
             </ul>
@@ -78,9 +93,9 @@ export function SiteFooter() {
                 <ul className="mt-4 space-y-3 text-sm">
                   {column.links.map((link) => (
                     <li key={link.label}>
-                      <a href={link.href} className="transition hover:text-white">
+                      <Link to={link.to} className="transition hover:text-white">
                         {link.label}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>

@@ -16,8 +16,13 @@
 
 import type {
   AcademicSession,
+  AttendanceRecord,
+  AttendanceStatus,
+  CaSuggestion,
+  ClassMeeting,
   ClassSlot,
   Course,
+  CourseAllocation,
   Department,
   Enrollment,
   EnrollmentStatus,
@@ -26,10 +31,14 @@ import type {
   Invoice,
   InvoiceStatus,
   Lecturer,
+  LecturerAccount,
+  LecturerCourse,
   Payment,
   PaymentMethod,
   PaymentStatus,
   Programme,
+  Quiz,
+  QuizScore,
   Role,
   Semester,
   SemesterTerm,
@@ -287,6 +296,24 @@ export function toLecturer(api: Record<string, unknown>): Lecturer {
   };
 }
 
+export function toLecturerAccount(api: Record<string, unknown>): LecturerAccount {
+  return {
+    id: num(api.id),
+    email: str(api.email),
+    full_name: str(api.full_name),
+    title: str(api.title),
+    first_name: str(api.first_name),
+    middle_name: str(api.middle_name),
+    last_name: str(api.last_name),
+    phone_number: str(api.phone_number),
+    // A missing flag must not read as "deactivated", so default to active.
+    is_active: api.is_active === undefined ? true : Boolean(api.is_active),
+    must_change_password: Boolean(api.must_change_password),
+    last_login: blankToNull(api.last_login),
+    date_joined: blankToNull(api.date_joined),
+  };
+}
+
 /* -------------------------------------------------------------------------- */
 /* students                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -420,5 +447,140 @@ export function toPayment(api: Record<string, unknown>): Payment {
     // An unconfirmed payment has no confirmation timestamp; the date it was
     // banked is the closest honest answer.
     paid_at: str(api.confirmed_at) || str(api.paid_on),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* lecturer                                                                    */
+/* -------------------------------------------------------------------------- */
+
+const ATTENDANCE_STATUSES: Record<string, AttendanceStatus> = {
+  PRESENT: "present",
+  ABSENT: "absent",
+  LATE: "late",
+  EXCUSED: "excused",
+};
+
+const ATTENDANCE_STATUS_CODES = invert(ATTENDANCE_STATUSES);
+
+export const fromAttendanceStatus = (status: AttendanceStatus): string =>
+  ATTENDANCE_STATUS_CODES[status] ?? "PRESENT";
+
+export function toCourseAllocation(api: Record<string, unknown>): CourseAllocation {
+  // The list serializer nests the course; the counts sit on the row itself.
+  const course = (api.course_detail ?? {}) as Record<string, unknown>;
+  return {
+    id: num(api.id),
+    lecturer: num(api.lecturer),
+    lecturer_name: str(api.lecturer_name),
+    course: num(api.course),
+    course_code: str(course.code),
+    course_title: str(course.title),
+    semester: num(api.semester),
+    semester_name: str(api.semester_name),
+    student_count: num(api.student_count),
+    is_active: Boolean(api.is_active),
+  };
+}
+
+export function toLecturerCourse(api: Record<string, unknown>): LecturerCourse {
+  return {
+    allocation: num(api.allocation),
+    course: num(api.course),
+    course_code: str(api.course_code),
+    course_title: str(api.course_title),
+    credit_units: num(api.credit_units),
+    level: num(api.level),
+    semester: num(api.semester),
+    semester_name: str(api.semester_name),
+    student_count: num(api.student_count),
+    pending_enrollments: num(api.pending_enrollments),
+    graded_count: num(api.graded_count),
+    ungraded_count: num(api.ungraded_count),
+    quiz_count: num(api.quiz_count),
+    meetings_held: num(api.meetings_held),
+    attendance_rate: num(api.attendance_rate),
+  };
+}
+
+export function toClassMeeting(api: Record<string, unknown>): ClassMeeting {
+  return {
+    id: num(api.id),
+    course: num(api.course),
+    course_code: str(api.course_code),
+    course_title: str(api.course_title),
+    semester: num(api.semester),
+    semester_name: str(api.semester_name),
+    slot: api.slot === null || api.slot === undefined ? null : num(api.slot),
+    day: str(api.day),
+    venue: str(api.venue),
+    held_on: str(api.held_on),
+    topic: str(api.topic),
+    taken_by_name: str(api.taken_by_name),
+    expected: num(api.expected),
+    marked_count: num(api.marked_count),
+    present_count: num(api.present_count),
+  };
+}
+
+export function toAttendanceRecord(api: Record<string, unknown>): AttendanceRecord {
+  return {
+    id: num(api.id),
+    meeting: num(api.meeting),
+    enrollment: num(api.enrollment),
+    student: num(api.student),
+    student_name: str(api.student_name),
+    roll_number: str(api.roll_number),
+    course_code: str(api.course_code),
+    held_on: str(api.held_on),
+    status: ATTENDANCE_STATUSES[str(api.status)] ?? "present",
+    note: str(api.note),
+  };
+}
+
+export function toQuiz(api: Record<string, unknown>): Quiz {
+  return {
+    id: num(api.id),
+    course: num(api.course),
+    course_code: str(api.course_code),
+    course_title: str(api.course_title),
+    semester: num(api.semester),
+    semester_name: str(api.semester_name),
+    title: str(api.title),
+    description: str(api.description),
+    max_score: num(api.max_score),
+    held_on: blankToNull(api.held_on),
+    is_published: Boolean(api.is_published),
+    scored_count: num(api.scored_count),
+  };
+}
+
+export function toQuizScore(api: Record<string, unknown>): QuizScore {
+  return {
+    id: num(api.id),
+    quiz: num(api.quiz),
+    quiz_title: str(api.quiz_title),
+    course_code: str(api.course_code),
+    enrollment: num(api.enrollment),
+    student: num(api.student),
+    student_name: str(api.student_name),
+    roll_number: str(api.roll_number),
+    score: num(api.score),
+    max_score: num(api.max_score),
+    percentage: num(api.percentage),
+    remark: str(api.remark),
+  };
+}
+
+/** Null rather than zeroes: a student who has sat nothing has no suggestion. */
+export function toCaSuggestion(api: unknown): CaSuggestion | null {
+  if (!api || typeof api !== "object") return null;
+  const row = api as Record<string, unknown>;
+  return {
+    quizzes_taken: num(row.quizzes_taken),
+    scored: num(row.scored),
+    possible: num(row.possible),
+    percentage: num(row.percentage),
+    suggested_ca: num(row.suggested_ca),
   };
 }

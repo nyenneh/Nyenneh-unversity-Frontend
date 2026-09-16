@@ -44,6 +44,39 @@ export const endpoints = {
   lecturers: {
     /** The accounts list, filtered by role. */
     list: "auth/users/",
+    /** Creates the account and its teaching load in one call. */
+    onboard: "academic/lecturers/",
+    detail: (id: number) => `auth/users/${id}/`,
+    /** Issues a fresh temporary password and emails it. */
+    resendPassword: (id: number) => `auth/users/${id}/resend-password/`,
+    /** Puts a deactivated account back in service. */
+    activate: (id: number) => `auth/users/${id}/activate/`,
+  },
+  allocations: {
+    list: "academic/allocations/",
+    detail: (id: number) => `academic/allocations/${id}/`,
+    /** Gives one lecturer a whole teaching load; safe to re-submit. */
+    assign: "academic/allocations/assign/",
+  },
+  attendance: {
+    meetings: "attendance/meetings/",
+    meetingDetail: (id: number) => `attendance/meetings/${id}/`,
+    /** The class list for one meeting, marked or not. */
+    register: (id: number) => `attendance/meetings/${id}/register/`,
+    takeRegister: "attendance/records/take-register/",
+    courseSummary: "attendance/records/course-summary/",
+    /** The signed-in student's own attendance, course by course. */
+    myAttendance: "attendance/records/my-attendance/",
+  },
+  quizzes: {
+    list: "quizzes/quizzes/",
+    detail: (id: number) => `quizzes/quizzes/${id}/`,
+    markSheet: (id: number) => `quizzes/quizzes/${id}/mark-sheet/`,
+    scores: "quizzes/scores/",
+    bulkEntry: "quizzes/scores/bulk-entry/",
+    /** Quiz performance scaled to a suggested CA mark. */
+    suggestedCa: "quizzes/scores/suggested-ca/",
+    myScores: "quizzes/scores/my-scores/",
   },
   students: {
     list: "students/",
@@ -60,6 +93,9 @@ export const endpoints = {
     list: "grades/results/",
     detail: (id: number) => `grades/results/${id}/`,
     publish: "grades/results/publish/",
+    /** The class list for a course with marks so far, plus CA suggestions. */
+    markSheet: "grades/results/mark-sheet/",
+    bulkEntry: "grades/results/bulk-entry/",
     /** Published results plus the GPA/CGPA summary, per semester. */
     myResults: "grades/semester-results/my-results/",
   },
@@ -76,5 +112,6 @@ export const endpoints = {
   dashboard: {
     admin: "dashboard/admin/",
     student: "dashboard/student/",
+    lecturer: "dashboard/lecturer/",
   },
 } as const;

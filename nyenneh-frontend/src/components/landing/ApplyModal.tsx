@@ -7,13 +7,12 @@ import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
+import { departments } from "@/content/departments";
+import { whatsappConfigured, whatsappLink } from "@/lib/whatsapp";
 
-/** Mirrors the programmes listed in the Academics section. */
-const programmes = [
-  "Computer Science",
-  "Business Administration",
-  "Electrical Engineering",
-];
+/** Read off the Academics slideshow, so the two can never disagree about
+    what the university admits into. */
+const programmes = departments.map((department) => department.name);
 
 /** The intake the landing page is advertising. */
 const intake = "2026/2027 first semester";
@@ -33,15 +32,9 @@ const schema = z.object({
 
 type ApplyForm = z.infer<typeof schema>;
 
-/**
- * The registry's WhatsApp line, digits only with the country code and no "+"
- * — that is the shape wa.me expects. Set VITE_WHATSAPP_NUMBER before building.
- */
-const whatsappNumber = String(import.meta.env.VITE_WHATSAPP_NUMBER ?? "").replace(/\D/g, "");
-
 /** Builds the click-to-chat link with the enquiry already typed out. */
 function buildWhatsappLink(values: ApplyForm) {
-  const lines = [
+  return whatsappLink([
     "Hello Nyenneh University, I would like to apply for admission.",
     "",
     `Name: ${values.fullName}`,
@@ -51,9 +44,7 @@ function buildWhatsappLink(values: ApplyForm) {
     `Intake: ${intake}`,
     values.message ? `` : null,
     values.message ? `Message: ${values.message}` : null,
-  ].filter((line) => line !== null);
-
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
+  ]);
 }
 
 interface ApplyModalProps {
@@ -91,7 +82,7 @@ export function ApplyModal({ open, onClose }: ApplyModalProps) {
     window.open(link, "_blank", "noopener,noreferrer");
   });
 
-  if (!whatsappNumber) {
+  if (!whatsappConfigured) {
     return (
       <Modal
         open={open}

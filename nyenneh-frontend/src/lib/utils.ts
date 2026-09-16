@@ -62,5 +62,7 @@ export function initials(fullName: string) {
 
 /** Landing page for a role, used after login and by the "/" redirect. */
 export function homePathForRole(role: string) {
-  return role === "student" ? "/student/dashboard" : "/admin/dashboard";
+  if (role === "student") return "/student/dashboard";
+  if (role === "lecturer") return "/lecturer/dashboard";
+  return "/admin/dashboard";
 }

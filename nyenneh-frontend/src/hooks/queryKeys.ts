@@ -1,6 +1,8 @@
 import type { CourseFilters, SlotFilters } from "@/services/academics.service";
 import type { InvoiceFilters } from "@/services/finance.service";
 import type { GradeFilters } from "@/services/grades.service";
+import type { LecturerAccountFilters } from "@/services/lecturerAccounts.service";
+import type { AllocationFilters } from "@/services/lecturer.service";
 import type { StudentFilters } from "@/services/students.service";
 
 /**
@@ -34,6 +36,7 @@ export const queryKeys = {
   },
   lecturers: {
     all: ["lecturers"] as const,
+    list: (filters: LecturerAccountFilters) => ["lecturers", "list", filters] as const,
   },
   students: {
     all: ["students"] as const,
@@ -56,9 +59,35 @@ export const queryKeys = {
     myInvoices: ["finance", "my-invoices"] as const,
     payments: (params: { invoice?: number }) => ["finance", "payments", params] as const,
   },
+  allocations: {
+    all: ["allocations"] as const,
+    list: (filters: AllocationFilters) => ["allocations", "list", filters] as const,
+  },
+  attendance: {
+    all: ["attendance"] as const,
+    meetings: (params: { course?: number; semester?: number }) =>
+      ["attendance", "meetings", params] as const,
+    register: (meeting: number) => ["attendance", "register", meeting] as const,
+    summary: (params: { course: number; semester?: number }) =>
+      ["attendance", "summary", params] as const,
+    mine: ["attendance", "mine"] as const,
+  },
+  quizzes: {
+    all: ["quizzes"] as const,
+    list: (params: { course?: number; semester?: number }) =>
+      ["quizzes", "list", params] as const,
+    markSheet: (quiz: number) => ["quizzes", "mark-sheet", quiz] as const,
+    mine: ["quizzes", "my-scores"] as const,
+  },
+  markSheet: {
+    all: ["mark-sheet"] as const,
+    list: (params: { course: number; semester: number }) =>
+      ["mark-sheet", params] as const,
+  },
   dashboard: {
     all: ["dashboard"] as const,
     admin: ["dashboard", "admin"] as const,
     student: ["dashboard", "student"] as const,
+    lecturer: ["dashboard", "lecturer"] as const,
   },
 } as const;

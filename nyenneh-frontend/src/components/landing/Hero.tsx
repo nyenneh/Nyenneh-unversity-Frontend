@@ -1,9 +1,10 @@
 import { ArrowRight, GraduationCap } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import campusHero from "@/assets/campus-hero.jpg";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { heroSlides } from "@/content/heroSlides";
+import { cn } from "@/lib/utils";
 
 // The dialog drags in react-hook-form and zod for a form most visitors never
 // open, so it loads on demand.
@@ -16,27 +17,89 @@ function preloadApplyModal() {
   void import("@/components/landing/ApplyModal");
 }
 
+/** How long a photograph holds the frame before the next one fades up. */
+const SLIDE_MS = 7000;
+
+/** Read once at mount: there is no need to react to a mid-visit change. */
+function prefersReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
+
 export function Hero() {
   const [applyOpen, setApplyOpen] = useState(false);
+  const [active, setActive] = useState(0);
+
+  // Anyone who has asked their system not to animate keeps the first frame and
+  // never gets the rotation — a background that moves on its own is exactly
+  // what that setting is about.
+  const [still] = useState(prefersReducedMotion);
+
+  // The later photographs are held back until the browser is idle, so they do
+  // not compete for bandwidth with the first one, which is the page's LCP.
+  const [restLoaded, setRestLoaded] = useState(false);
+
+  useEffect(() => {
+    if (still) return;
+
+    const idle = window.requestIdleCallback;
+    if (idle) {
+      const handle = idle(() => setRestLoaded(true), { timeout: 2500 });
+      return () => window.cancelIdleCallback?.(handle);
+    }
+
+    // Safari has no requestIdleCallback; a timer past the usual first paint
+    // does the same job well enough.
+    const timer = window.setTimeout(() => setRestLoaded(true), 1500);
+    return () => window.clearTimeout(timer);
+  }, [still]);
+
+  useEffect(() => {
+    if (still || heroSlides.length < 2) return;
+    const timer = window.setInterval(
+      () => setActive((index) => (index + 1) % heroSlides.length),
+      SLIDE_MS,
+    );
+    return () => window.clearInterval(timer);
+    // `active` is a dependency so that picking a photograph by hand restarts
+    // the countdown rather than cutting the new one short.
+  }, [still, active]);
+
+  const slide = heroSlides[active];
 
   return (
     <div className="relative overflow-hidden bg-navy-950">
-      {/* Graduation photograph, full bleed behind the headline. Decorative —
-          the message is carried by the heading, so the alt text stays empty.
-          Source: unsplash.com/photos/photo-1541339907198-e08756dedf3f
+      {/* Liberia, full bleed behind the headline: the coast, the capital and
+          the interior, one fading into the next. Decorative — the message is
+          carried by the heading — so the alt text stays empty and the place
+          names live in the caption under the copy instead.
 
-          Deliberately eager: this is the largest thing above the fold, so it
-          is the page's LCP element. Making it lazy would delay first paint
-          rather than help it. */}
-      <img
-        src={campusHero}
-        alt=""
-        aria-hidden
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
-        className="absolute inset-0 size-full object-cover object-center"
-      />
+          The first frame is deliberately eager: it is the largest thing above
+          the fold, so it is the page's LCP element. Making it lazy would delay
+          first paint rather than help it. */}
+      <div aria-hidden className="absolute inset-0">
+        {heroSlides.map((item, index) => {
+          const first = index === 0;
+          if (!first && !restLoaded && index !== active) return null;
+
+          return (
+            <img
+              key={item.id}
+              src={item.src}
+              alt=""
+              loading={first ? "eager" : "lazy"}
+              fetchPriority={first ? "high" : "low"}
+              decoding="async"
+              className={cn(
+                // A slow drift on every frame, not just the visible one: a
+                // photograph that stopped moving as it faded out would snap.
+                "absolute inset-0 size-full animate-hero-pan object-cover object-center",
+                "transition-opacity duration-1000 ease-linear motion-reduce:animate-none motion-reduce:transition-none",
+                index === active ? "opacity-100" : "opacity-0",
+              )}
+            />
+          );
+        })}
+      </div>
 
       {/* Scrims. The first darkens the whole frame so the copy stays legible on
           phones, where text runs the full width; the second is the horizontal
@@ -101,7 +164,44 @@ export function Hero() {
           </div>
 
           <p className="mt-6 text-sm text-navy-200">
-            Three faculties · Semester-based credit system · Results published online
+            Six departments · Semester-based credit system · Results published online
+          </p>
+        </div>
+
+        {/* Where the photograph was taken, and who took it. The credit is a
+            licence condition, so it stays visible at every width rather than
+            being tucked away on large screens. The dots are a shortcut for
+            anyone who does not want to wait out the rotation. */}
+        <div className="mt-14 flex flex-wrap items-center gap-x-4 gap-y-3 sm:mt-20">
+          <div className="flex items-center gap-2">
+            {heroSlides.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActive(index)}
+                aria-current={index === active}
+                aria-label={`Show ${item.place}`}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-300",
+                  index === active
+                    ? "w-8 bg-brand-400"
+                    : "w-4 bg-white/35 hover:bg-white/60",
+                )}
+              />
+            ))}
+          </div>
+
+          <p className="text-xs text-navy-300">
+            {slide.place} · Photo{" "}
+            <a
+              href={slide.source}
+              target="_blank"
+              rel="noreferrer"
+              className="underline decoration-navy-400 underline-offset-2 transition hover:text-navy-100"
+            >
+              {slide.credit}
+            </a>{" "}
+            / Wikimedia Commons, {slide.licence}
           </p>
         </div>
       </div>
