@@ -35,15 +35,12 @@ const STATUSES: StudentStatus[] = [
   "withdrawn",
 ];
 
-/** Upper bound for the date-of-birth picker. */
+// upper bound for the date of birth picker
 const TODAY = new Date().toISOString().slice(0, 10);
 
-/**
- * Admitting a student creates a login account and an academic record together,
- * which is why the names are collected separately: the account needs them apart.
- * The programme carries the department and the field of study, so neither is
- * asked for here.
- */
+// Admitting a student makes a login account and an academic record at the same
+// time, which is why the names are collected separately - the account wants
+// them apart. No department or field of study here, the programme carries both.
 const schema = z.object({
   first_name: z.string().min(2, "Enter the first name"),
   last_name: z.string().min(2, "Enter the last name"),
@@ -51,7 +48,7 @@ const schema = z.object({
   phone: z.string(),
   date_of_birth: z
     .string()
-    // A future date is always a typo, and the registry rejects it downstream.
+    // always a typo, and the registry rejects it anyway
     .refine((value) => value === "" || value <= new Date().toISOString().slice(0, 10), {
       message: "The date of birth cannot be in the future",
     }),
@@ -85,7 +82,7 @@ const blank: StudentForm = {
   status: "active",
 };
 
-/** "Ama Serwaa Boateng" -> ["Ama", "Serwaa Boateng"], for editing an existing record. */
+// "Ama Serwaa Boateng" -> ["Ama", "Serwaa Boateng"], for the edit form
 function splitName(fullName: string): [string, string] {
   const parts = fullName.trim().split(/\s+/);
   if (parts.length < 2) return [fullName, ""];
@@ -114,7 +111,7 @@ export default function StudentsPage() {
 
   const save = useSaveStudent(editing?.id);
   const remove = useDeleteStudent();
-  // The roster row is trimmed; the form needs the whole record.
+  // the roster row is trimmed, the form needs the whole record
   const editingDetail = useStudent(editing?.id);
 
   const {
@@ -128,8 +125,8 @@ export default function StudentsPage() {
     if (!formOpen) return;
     const detail = editingDetail.data;
     if (editing) {
-      // Wait for the full record rather than seeding the form with blanks that
-      // would be written straight back on save.
+      // wait for the full record - seeding with blanks means writing those
+      // blanks straight back on save
       if (!detail || detail.id !== editing.id) return;
       const [firstName, lastName] = splitName(detail.full_name);
       reset({
@@ -165,7 +162,7 @@ export default function StudentsPage() {
     save.mutate(
       {
         ...parsed,
-        // Untouched optional text should reach the API as null, not "".
+        // optional text they never touched should go up as null, not ""
         phone: parsed.phone || null,
         address: parsed.address || null,
         guardian_name: parsed.guardian_name || null,

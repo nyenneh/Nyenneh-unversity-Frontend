@@ -11,25 +11,23 @@ import StudentLayout from "@/layouts/StudentLayout";
 import { homePathForRole } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 
-// The public front door stays in the entry chunk: it is what most visitors
-// land on, so splitting it would only add a round trip before first paint.
+// landing page stays in the main chunk - it is what most people hit first, so
+// splitting it would just add a round trip before anything paints
 import LandingPage from "@/pages/public/LandingPage";
 
-// The rest of the public site is split off — a visitor who only reads the
-// landing page never downloads the answer bank or the enquiry forms.
+// the rest of the public site is split out. someone who only reads the landing
+// page never downloads the FAQ bank or the enquiry forms.
 const LeadershipPage = lazy(() => import("@/pages/public/LeadershipPage"));
 const QuestionsPage = lazy(() => import("@/pages/public/QuestionsPage"));
 const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
 
-// Everything else is a separate chunk. The auth screens carry react-hook-form
-// and zod, which nothing on the landing page needs.
+// auth screens drag in react-hook-form and zod, which the landing page doesn't need
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const ChangePasswordPage = lazy(() => import("@/pages/auth/ChangePasswordPage"));
 const ForbiddenPage = lazy(() => import("@/pages/ForbiddenPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
-// Each dashboard is a separate chunk, so signing in as a student never pays to
-// download the admin screens.
+// one chunk per dashboard, so a student never downloads the admin screens
 const AdminDashboardPage = lazy(() => import("@/pages/admin/AdminDashboardPage"));
 const DepartmentsPage = lazy(() => import("@/pages/admin/DepartmentsPage"));
 const CoursesPage = lazy(() => import("@/pages/admin/CoursesPage"));
@@ -53,7 +51,7 @@ const SchedulePage = lazy(() => import("@/pages/student/SchedulePage"));
 const ResultsPage = lazy(() => import("@/pages/student/ResultsPage"));
 const FeesPage = lazy(() => import("@/pages/student/FeesPage"));
 
-/** Sends "/portal" to whichever dashboard suits the signed-in role. */
+// sends /portal to whichever dashboard fits the role
 function HomeRedirect() {
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthStore((state) => state.hydrated);
@@ -67,7 +65,7 @@ function HomeRedirect() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      {/* Restores the scroll-to-anchor the browser does on a plain page load. */}
+      {/* puts back the scroll-to-anchor behaviour we lose with client routing */}
       <ScrollToHash />
 
       <Suspense
@@ -78,7 +76,7 @@ export default function AppRouter() {
         }
       >
         <Routes>
-          {/* Public site; the portal lives behind /portal. */}
+          {/* public site. the portal is behind /portal. */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/leadership" element={<LeadershipPage />} />

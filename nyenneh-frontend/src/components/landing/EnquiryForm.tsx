@@ -15,7 +15,7 @@ const schema = z.object({
     .string()
     .trim()
     .min(1, "Enter a phone number we can reach you on")
-    // Digits, spaces and the usual separators; the count is what matters.
+    // let people type spaces and dashes, just count the digits
     .refine((value) => (value.match(/\d/g) ?? []).length >= 7, "Enter a valid phone number"),
   rollNumber: z.string().trim().max(20, "That does not look like a roll number"),
   topic: z.string().min(1, "Choose what this is about"),
@@ -29,26 +29,18 @@ const schema = z.object({
 type Enquiry = z.infer<typeof schema>;
 
 interface EnquiryFormProps {
-  /** Where the enquiry goes when the visitor sends it by email. */
-  email: string;
-  /** What this is about — the list the visitor picks from. */
+  email: string; // where it goes if they send by email
   topics: string[];
-  /** Pre-selects one of `topics`, for a form sitting under a specific answer. */
-  defaultTopic?: string;
-  /** Subject line on the email draft. */
+  defaultTopic?: string; // pre-select one, for a form sitting under an answer
   subject?: string;
-  /** Asks for a roll number — worth it on pages current students use. */
-  askRollNumber?: boolean;
+  askRollNumber?: boolean; // worth it on the pages current students use
 }
 
-/**
- * The public "ask us something" form.
- *
- * There is no enquiries endpoint on the Django API — it serves the portal,
- * behind authentication — so nothing is POSTed here. The form composes the
- * message and hands it to WhatsApp or to the visitor's mail client, and says
- * plainly that it is not sent until they press send there.
- */
+// The public "ask us something" form.
+// There is no enquiries endpoint on the Django side (it only serves the portal
+// and everything is behind auth), so nothing gets POSTed. We build the message
+// and hand it off to WhatsApp or their mail client, and the UI says outright
+// that it isn't sent until they press send there.
 export function EnquiryForm({
   email,
   topics,
@@ -56,8 +48,8 @@ export function EnquiryForm({
   subject = "Enquiry from the Nyenneh University website",
   askRollNumber = false,
 }: EnquiryFormProps) {
-  // Kept after submitting so the confirmation can offer the link again — the
-  // browser blocks the popup if the tab has lost the user gesture.
+  // kept after submit so the confirmation can offer the link again, since the
+  // browser blocks the popup once the tab has lost the user gesture
   const [sent, setSent] = useState<{ whatsapp: string; mail: string } | null>(null);
 
   const {
@@ -97,8 +89,7 @@ export function EnquiryForm({
     };
     setSent(links);
 
-    // WhatsApp when the build has a number; otherwise straight to the mail
-    // client, so the form still does something useful either way.
+    // whatsapp if this build has a number, otherwise mail client
     if (links.whatsapp) {
       window.open(links.whatsapp, "_blank", "noopener,noreferrer");
     } else {

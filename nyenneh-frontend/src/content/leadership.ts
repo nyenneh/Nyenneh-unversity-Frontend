@@ -1,28 +1,20 @@
-/**
- * The people who run the university, as the public site presents them.
- *
- * Placeholder officers — swap for the registry's published list. The landing
- * section shows the principal officers only; the leadership page shows
- * everything in this file.
- */
+// The people who run the university, as the public site presents them.
+// TODO: placeholder officers, swap for the registry's published list.
+// The landing section shows the principal officers only, the leadership page
+// shows everything in here.
 
 export interface Leader {
   id: string;
   name: string;
-  /** The post, not the academic title: "Vice-Chancellor", not "Professor". */
-  role: string;
-  /** The office or faculty the post carries. */
+  role: string; // the post, not the academic title: "Vice-Chancellor", not "Professor"
   unit: string;
-  /** Year of appointment, shown as "In post since 2019". */
-  since: string;
+  since: string; // year appointed, shown as "In post since 2019"
   bio: string;
-  /** Written to directly from the leadership page. */
   email: string;
-  /** What this office decides — the reason a visitor would write to them. */
-  responsibilities: string[];
+  responsibilities: string[]; // what this office decides, i.e. why you'd write to them
 }
 
-/** The senior management team. Order matters: it is the order of precedence. */
+// senior management. the order matters, it is the order of precedence.
 export const principalOfficers: Leader[] = [
   {
     id: "vice-chancellor",
@@ -110,7 +102,7 @@ export const principalOfficers: Leader[] = [
   },
 ];
 
-/** One dean per faculty. Departmental heads sit under them. */
+// one dean per faculty, heads of department sit under them
 export const deans: Leader[] = [
   {
     id: "dean-science",
@@ -156,7 +148,7 @@ export const deans: Leader[] = [
   },
 ];
 
-/** The governing body. Names only — council members hold no executive office. */
+// the governing body. names only, council members hold no executive office.
 export const council = [
   { name: "Hon. Rebecca M. Sirleaf", role: "Chair of the University Council" },
   { name: "Prof. Josephine T. Wreh", role: "Vice-Chancellor (ex officio)" },

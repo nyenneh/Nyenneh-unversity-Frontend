@@ -3,10 +3,8 @@ import type { AuthTokens } from "@/types";
 const ACCESS_KEY = "nyenneh.access_token";
 const REFRESH_KEY = "nyenneh.refresh_token";
 
-/**
- * Token persistence lives on its own so that the axios instance and the auth
- * store can both reach it without importing each other.
- */
+// kept separate so the axios instance and the auth store can both use it
+// without importing each other
 export const tokenStorage = {
   getAccess: () => localStorage.getItem(ACCESS_KEY),
   getRefresh: () => localStorage.getItem(REFRESH_KEY),

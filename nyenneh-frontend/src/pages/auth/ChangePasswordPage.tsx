@@ -27,11 +27,9 @@ const schema = z
 
 type ChangePasswordForm = z.infer<typeof schema>;
 
-/**
- * Accounts are created by the registry, never self-registered: the holder is
- * emailed a one-time password and the API refuses every other endpoint until it
- * has been replaced. This is the only screen reachable in that state.
- */
+// Nobody self-registers here - the registry creates accounts and emails a
+// one-time password. The API refuses every other endpoint until that password
+// is replaced, so this is the only screen reachable in that state.
 export default function ChangePasswordPage() {
   const navigate = useNavigate();
   const toast = useToast();

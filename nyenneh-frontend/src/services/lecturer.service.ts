@@ -29,7 +29,7 @@ import type {
 
 type Row = Record<string, unknown>;
 
-/** Drops empty filters so the query string carries only what was actually set. */
+// drop empty filters so the query string only carries what was set
 function params(filters: Record<string, unknown>) {
   return Object.fromEntries(
     Object.entries(filters).filter(([, value]) => value !== undefined && value !== ""),
@@ -87,7 +87,7 @@ export interface ResultEntry {
 }
 
 export const lecturerService = {
-  /* -- dashboard & allocations ------------------------------------------- */
+  /* ---- dashboard & allocations ---- */
 
   dashboard: async (): Promise<LecturerDashboardStats> => {
     const data = await get<Row>(endpoints.dashboard.lecturer);
@@ -99,7 +99,7 @@ export const lecturerService = {
     };
   },
 
-  /** A lecturer gets only their own load; the server filters by account. */
+  // a lecturer only ever gets their own load, the server filters by account
   listAllocations: async (filters: AllocationFilters = {}): Promise<CourseAllocation[]> => {
     const data = await get<Row[] | { results: Row[] }>(endpoints.allocations.list, {
       params: params({ ...filters }),
@@ -120,7 +120,7 @@ export const lecturerService = {
 
   removeAllocation: (id: number) => del(endpoints.allocations.detail(id)),
 
-  /* -- attendance --------------------------------------------------------- */
+  /* ---- attendance ---- */
 
   listMeetings: async (filters: { course?: number; semester?: number } = {}) => {
     const data = await get<Row[] | { results: Row[] }>(endpoints.attendance.meetings, {
@@ -137,7 +137,6 @@ export const lecturerService = {
 
   deleteMeeting: (id: number) => del(endpoints.attendance.meetingDetail(id)),
 
-  /** The class list for one meeting: every registered student, marked or not. */
   register: async (meetingId: number): Promise<Register> => {
     const data = await get<Row>(endpoints.attendance.register(meetingId));
     return {
@@ -203,7 +202,7 @@ export const lecturerService = {
     }));
   },
 
-  /* -- quizzes ------------------------------------------------------------ */
+  /* ---- quizzes ---- */
 
   listQuizzes: async (filters: { course?: number; semester?: number } = {}) => {
     const data = await get<Row[] | { results: Row[] }>(endpoints.quizzes.list, {
@@ -238,13 +237,11 @@ export const lecturerService = {
     return ((data.scores as Row[]) ?? []).map(toQuizScore);
   },
 
-  /* -- final marks -------------------------------------------------------- */
+  /* ---- final marks ---- */
 
-  /**
-   * The class list for a course with marks so far. Each row may carry a
-   * `suggestion` — quiz performance scaled to the CA maximum — which the
-   * lecturer accepts or overrides; nothing is applied automatically.
-   */
+  // Class list for a course with whatever marks exist. A row can carry a
+  // `suggestion` (quiz results scaled to the CA max) which the lecturer takes
+  // or ignores - we never apply it for them.
   markSheet: async (course: number, semester: number): Promise<MarkSheet> => {
     const data = await get<Row>(endpoints.grades.markSheet, {
       params: params({ course, semester }),

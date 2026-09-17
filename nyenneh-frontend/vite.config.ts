@@ -14,8 +14,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Forwards /api/* to the Django dev server so the browser sees a same-origin
-      // request (no CORS preflight in development).
+      // send /api/* to django so the browser sees same-origin and we don't
+      // have to set up CORS for development
       "/api": {
         target: "http://127.0.0.1:8000",
         changeOrigin: true,

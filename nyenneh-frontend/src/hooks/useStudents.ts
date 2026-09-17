@@ -12,18 +12,14 @@ export function useStudents(filters: StudentFilters = {}) {
   return useQuery({
     queryKey: queryKeys.students.list(filters),
     queryFn: () => studentsService.list(filters),
-    // Keeps the previous rows on screen while a filter change is in flight.
+    // keep the old rows up while a filter change is loading
     placeholderData: (previous) => previous,
   });
 }
 
-/**
- * One student in full.
- *
- * The roster list is a trimmed payload — enough to draw a row, but missing the
- * personal details the edit form writes back — so the form loads the record
- * proper before it is filled in.
- */
+// One student, in full. The roster list is trimmed - enough for a table row,
+// but without the personal details the edit form writes back - so the form
+// fetches the real record before filling itself in.
 export function useStudent(id?: number) {
   return useQuery({
     queryKey: queryKeys.students.detail(id ?? 0),

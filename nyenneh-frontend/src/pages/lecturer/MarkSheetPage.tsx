@@ -94,7 +94,8 @@ export default function MarkSheetPage() {
     return okCa && okExam;
   };
 
-  /** Fills every empty CA cell from the quiz suggestion; typed values stand. */
+  // fills the empty CA cells from the quiz suggestion. anything already typed
+  // is left alone.
   const applySuggestions = () =>
     setDrafts((state) => {
       const next = { ...state };

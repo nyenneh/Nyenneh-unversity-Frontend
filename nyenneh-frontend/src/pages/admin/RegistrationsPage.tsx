@@ -35,7 +35,7 @@ export default function RegistrationsPage() {
   const drop = useDropEnrollment();
   const [dropping, setDropping] = useState<Enrollment | null>(null);
 
-  // Tracks which row is being acted on so only its buttons show a spinner.
+  // which row is being acted on, so only that row spins
   const [actingOn, setActingOn] = useState<number | null>(null);
 
   const act = (id: number, action: "approve" | "reject") => {

@@ -20,11 +20,9 @@ interface PortalLayoutProps {
   navItems: NavItem[];
 }
 
-/**
- * The shell both roles share: fixed sidebar from `lg` up, slide-over drawer
- * below it. Admin and student differ only in the nav list, so they configure
- * this rather than each maintaining a copy.
- */
+// Shared shell: fixed sidebar from lg up, slide-over drawer below that. Admin
+// and student only differ in the nav list, so they just configure this instead
+// of keeping two copies of the same layout.
 export function PortalLayout({ subtitle, navItems }: PortalLayoutProps) {
   const user = useCurrentUser();
   const logout = useLogout();
@@ -45,7 +43,7 @@ export function PortalLayout({ subtitle, navItems }: PortalLayoutProps) {
           <NavLink
             key={to}
             to={to}
-            // Navigating on mobile should close the drawer behind you.
+            // close the drawer behind you on mobile
             onClick={() => setDrawerOpen(false)}
             className={({ isActive }) =>
               cn(
@@ -86,10 +84,10 @@ export function PortalLayout({ subtitle, navItems }: PortalLayoutProps) {
 
   return (
     <div className="min-h-screen bg-ink-50">
-      {/* Desktop sidebar */}
+      {/* desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 lg:block">{sidebar}</aside>
 
-      {/* Mobile drawer */}
+      {/* mobile drawer */}
       {drawerOpen ? (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div

@@ -14,14 +14,12 @@ import { cn } from "@/lib/utils";
 import { getErrorMessage } from "@/services/api";
 import type { Grade } from "@/types";
 
-/**
- * The house split of the 100 marks, matching the server's validators: anything
- * outside these bounds is rejected on save.
- */
+// how the 100 marks are split. matches the server validators - anything
+// outside these gets rejected on save.
 const MAX_CA_SCORE = 40;
 const MAX_EXAM_SCORE = 60;
 
-/** Empty string is a distinct state from 0 while the lecturer is typing. */
+// "" and 0 are different things while someone is typing
 type Draft = { ca: string; exam: string };
 
 const toDraft = (grade: Grade): Draft => ({
@@ -84,9 +82,9 @@ export default function GradesPage() {
 
   const grades = useMemo(() => data ?? [], [data]);
 
-  // Reseed the editable cells whenever a fresh gradebook arrives. Adjusting
-  // state during render (rather than in an effect) avoids a pass where the
-  // inputs still show the previous course's scores.
+  // reseed the cells when a new gradebook arrives. doing it during render
+  // rather than in an effect avoids a pass where the inputs still show the
+  // last course's scores.
   const [seededFrom, setSeededFrom] = useState<typeof grades | null>(null);
   if (seededFrom !== grades) {
     setSeededFrom(grades);

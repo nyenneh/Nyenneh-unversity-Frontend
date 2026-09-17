@@ -7,13 +7,11 @@ import { buttonClasses } from "@/components/ui/buttonStyles";
 import { cn, homePathForRole } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 
-/**
- * Two kinds of destination sit side by side here: sections of the landing page
- * and public pages of their own. Both are router links, so "/#academics" works
- * from the contact page as well as from the landing page — ScrollToHash does
- * the scrolling that a plain anchor would have done.
- */
+// Two different things sit side by side in here: sections of the landing page
+// and pages of their own. Both are router links so "/#academics" works from
+// the contact page too - ScrollToHash does the scrolling a plain anchor would.
 const navLinks = [
+  { label: "About", to: "/#about" },
   { label: "Academics", to: "/#academics" },
   { label: "Admissions", to: "/#admissions" },
   { label: "Questions", to: "/questions" },
@@ -21,21 +19,20 @@ const navLinks = [
   { label: "Contact", to: "/contact" },
 ];
 
-/** Public site chrome. Sits on the navy hero, so it is navy all the way down. */
+// sits on the navy hero, so it is navy the whole way down
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // A visitor already signed in gets sent to their own dashboard rather than
-  // being asked to log in again.
+  // already signed in? send them to their dashboard instead of the login screen
   const signedIn = isAuthenticated() && user;
   const portalHref = signedIn ? homePathForRole(user.role) : "/login";
   const portalLabel = signedIn ? "Go to my portal" : "Student portal";
 
-  // Only the standalone pages can be "current"; a section of the landing page
-  // is wherever the visitor happens to have scrolled to.
+  // only the real pages can be "current" - a landing page section is just
+  // wherever they happen to have scrolled to
   const isCurrent = (to: string) => !to.includes("#") && pathname === to;
 
   return (

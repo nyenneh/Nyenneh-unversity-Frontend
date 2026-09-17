@@ -6,19 +6,15 @@ import { cn } from "@/lib/utils";
 
 const HONORIFICS = /^(prof|dr|mr|mrs|ms|miss|hon|rev|eng)\.?$/i;
 
-/**
- * Initials for the portrait tile.
- *
- * `initials` in lib/utils takes the first two words, which on "Prof. Josephine
- * T. Wreh" gives "PJ". Titles and middle initials are dropped here so the tile
- * reads as the person's actual initials.
- */
+// initials() in lib/utils takes the first two words, so "Prof. Josephine T.
+// Wreh" comes out as "PJ". Drop the title and the middle initial here so the
+// tile shows the initials someone would actually expect.
 function leaderInitials(name: string) {
   const parts = name
     .split(" ")
     .filter(Boolean)
     .filter((part) => !HONORIFICS.test(part))
-    // "T." is a middle initial, not a name.
+    // "T." is a middle initial, not a name
     .filter((part) => part.replace(".", "").length > 1);
 
   const first = parts[0]?.[0] ?? "";
@@ -28,10 +24,8 @@ function leaderInitials(name: string) {
 
 interface LeaderCardProps {
   leader: Leader;
-  /** Adds the responsibilities list and the direct email — the page, not the teaser. */
-  detailed?: boolean;
-  /** Stagger against the other cards in the row. */
-  delay?: number;
+  detailed?: boolean; // full card for the leadership page, not the teaser
+  delay?: number; // stagger against the other cards in the row
   className?: string;
 }
 
@@ -53,8 +47,8 @@ export function LeaderCard({ leader, detailed = false, delay, className }: Leade
       )}
     >
       <div className="flex items-center gap-4">
-        {/* No photographs on file, so the tile carries the initials in the
-            university's navy and gold rather than an empty grey circle. */}
+        {/* no photos on file yet, so initials on navy/gold beats an empty
+            grey circle */}
         <span
           aria-hidden
           className="grid size-14 shrink-0 place-items-center rounded-2xl bg-navy-950 text-base font-semibold tracking-wide text-brand-400"

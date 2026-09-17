@@ -14,9 +14,9 @@ import type { Weekday } from "@/types";
 import { queryKeys } from "./queryKeys";
 import { useMutationWithToast } from "./useMutationWithToast";
 
-// --- reference data -------------------------------------------------------
+// --- reference data ---
 
-/** Faculties, programmes and sessions barely change; keep them warm. */
+// faculties, programmes and sessions hardly ever change
 const REFERENCE_STALE_TIME = 5 * 60 * 1000;
 
 export function useFaculties() {
@@ -43,7 +43,7 @@ export function useSessions() {
   });
 }
 
-/** The semester registrations are filed against. Null until one is marked current. */
+// the semester registrations get filed against. null until one is marked current.
 export function useCurrentSemester() {
   return useQuery({
     queryKey: queryKeys.semesters.current,
@@ -52,7 +52,7 @@ export function useCurrentSemester() {
   });
 }
 
-// --- departments ----------------------------------------------------------
+// --- departments ---
 
 export function useDepartments() {
   return useQuery({
@@ -81,7 +81,7 @@ export function useDeleteDepartment() {
   });
 }
 
-// --- courses --------------------------------------------------------------
+// --- courses ---
 
 export function useCourses(filters: CourseFilters = {}) {
   return useQuery({
@@ -108,7 +108,7 @@ export function useDeleteCourse() {
   });
 }
 
-// --- class slots ----------------------------------------------------------
+// --- class slots ---
 
 export function useClassSlots(filters: SlotFilters = {}) {
   return useQuery({
@@ -117,7 +117,6 @@ export function useClassSlots(filters: SlotFilters = {}) {
   });
 }
 
-/** The signed-in student's timetable, built from their approved courses. */
 export function useMySchedule() {
   return useQuery({
     queryKey: queryKeys.slots.mine,
@@ -150,14 +149,10 @@ export function useDeleteClassSlot() {
   });
 }
 
-/**
- * Registry flow: adding a course also puts its classes on the timetable.
- *
- * The course is created first, then one slot per selected day. A slot that
- * clashes with an existing booking is reported without discarding the course
- * that was already created, so the admin fixes the clash on the Class Slots
- * page rather than re-entering everything.
- */
+// Adding a course also puts its classes on the timetable. Course first, then
+// one slot per day picked. If a slot clashes with an existing booking we
+// report it but keep the course - otherwise the admin has to type the whole
+// thing again instead of just fixing the clash on the Class Slots page.
 export function useCreateCourseWithSchedule() {
   return useMutationWithToast({
     mutationFn: async ({
@@ -201,7 +196,7 @@ export function useCreateCourseWithSchedule() {
   });
 }
 
-// --- enrollments ----------------------------------------------------------
+// --- enrollments ---
 
 export function useEnrollments(params: { student?: number; status?: string } = {}) {
   return useQuery({
@@ -238,7 +233,7 @@ export function useDropEnrollment() {
   });
 }
 
-/** The registry deciding on a request. Approving it releases nothing; rejecting frees the seat. */
+// registry approving or rejecting a request. rejecting frees the seat again.
 export function useReviewEnrollment() {
   return useMutationWithToast({
     mutationFn: ({

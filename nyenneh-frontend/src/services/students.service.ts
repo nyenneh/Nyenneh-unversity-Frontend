@@ -13,11 +13,9 @@ export interface StudentFilters {
   status?: StudentStatus | "";
 }
 
-/**
- * Admitting a student creates two records at once — the login account and the
- * academic record — which is why the names are split out here: the server needs
- * them separately for the account.
- */
+// Admitting a student makes two records at once, the login account and the
+// academic record. That is why the name is split here - the account needs the
+// parts separately.
 export interface StudentInput {
   first_name: string;
   last_name: string;
@@ -35,7 +33,7 @@ export interface StudentInput {
   status: StudentStatus;
 }
 
-/** Django stores "not provided" as an empty string, never null. */
+// django wants "" for not provided, never null
 const blank = (value: string | null | undefined) => value ?? "";
 
 function toApi(payload: Partial<StudentInput>) {
@@ -58,10 +56,10 @@ function toApi(payload: Partial<StudentInput>) {
   if (payload.entry_session !== undefined) body.entry_session = payload.entry_session;
   if (payload.status !== undefined) body.status = fromStudentStatus(payload.status);
 
-  // A blank date must be omitted, not sent as "": the server rejects the latter.
+  // leave a blank date out entirely, "" comes back as a 400
   if (payload.date_of_birth) body.date_of_birth = payload.date_of_birth;
 
-  // Left blank, the registry allocates the next number for the department.
+  // leave it out and the registry allocates the next number for the department
   if (payload.roll_number) body.roll_number = payload.roll_number;
 
   return body;
@@ -82,13 +80,13 @@ export const studentsService = {
 
   me: async () => toStudent(await get<Row>(endpoints.students.me)),
 
-  /** Admits the student and emails a temporary password to the new account. */
+  // admits them and emails a temporary password to the new account
   create: async (payload: StudentInput) =>
     toStudent(await post<Row>(endpoints.students.list, toApi(payload))),
 
   update: async (id: number, payload: Partial<StudentInput>) =>
     toStudent(await patch<Row>(endpoints.students.detail(id), toApi(payload))),
 
-  /** Withdraws the student and deactivates their account; nothing is deleted. */
+  // withdraws them and deactivates the account, nothing is actually deleted
   remove: (id: number) => del(endpoints.students.detail(id)),
 };

@@ -1,3 +1,4 @@
+import { About } from "@/components/landing/About";
 import { Academics } from "@/components/landing/Academics";
 import { Admissions } from "@/components/landing/Admissions";
 import { CampusLife } from "@/components/landing/CampusLife";
@@ -7,18 +8,17 @@ import { Leadership } from "@/components/landing/Leadership";
 import { PortalPreview } from "@/components/landing/PortalPreview";
 import { Questions } from "@/components/landing/Questions";
 
-/**
- * Public front door. Unlike the portal pages this is reachable signed out —
- * the header swaps its call to action when there is a session.
- *
- * The chrome (header, footer, skip link) belongs to PublicLayout, which this
- * page shares with leadership, questions and contact. Questions, leadership
- * and contact each show a summary here and continue on their own page.
- */
+// The front door. Reachable signed out, unlike the portal pages - the header
+// just swaps its call to action when there is a session.
+//
+// Header, footer and skip link all live in PublicLayout, shared with
+// leadership, questions and contact. Each of those shows a summary here and
+// then carries on on its own page.
 export default function LandingPage() {
   return (
     <>
       <Hero />
+      <About />
       <Academics />
       <PortalPreview />
       <Admissions />

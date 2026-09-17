@@ -45,7 +45,7 @@ export default function QuizzesPage() {
     is_published: true,
   });
 
-  // Scores being typed. Empty string is "not yet marked", distinct from 0.
+  // scores being typed. "" means not marked yet, which is not the same as 0.
   const [drafts, setDrafts] = useState<Record<number, string>>({});
   const rows = useMemo(() => markSheet.data?.rows ?? [], [markSheet.data]);
   const maxScore = markSheet.data?.quiz.max_score ?? 0;

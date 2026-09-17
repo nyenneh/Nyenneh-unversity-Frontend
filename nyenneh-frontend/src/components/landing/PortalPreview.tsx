@@ -5,7 +5,7 @@ import { Reveal } from "@/components/shared/Reveal";
 import { useReveal } from "@/hooks/useReveal";
 import { cn } from "@/lib/utils";
 
-/** One entry per screen in the student area of the portal. */
+// one per screen in the student area
 const features = [
   {
     icon: BookOpen,
@@ -29,7 +29,6 @@ const features = [
   },
 ];
 
-/** One portal screen, easing in as the pair is scrolled to. */
 function FeatureCard({ feature, delay }: { feature: (typeof features)[number]; delay: number }) {
   const {
     ref: revealRef,
@@ -68,7 +67,7 @@ export function PortalPreview() {
         />
       </Reveal>
 
-      <div className="mt-12 grid gap-6 sm:grid-cols-2">
+      <div className="mt-10 grid gap-6 sm:grid-cols-2">
         {features.map((feature, index) => (
           <FeatureCard key={feature.title} feature={feature} delay={index * 90} />
         ))}

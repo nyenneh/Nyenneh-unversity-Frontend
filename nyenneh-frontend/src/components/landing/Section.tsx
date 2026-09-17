@@ -2,21 +2,32 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+// How wide the content column runs. Most sections are happy on the default.
+// The department slideshow wants the extra room; the sections that are really
+// just a column of text read better held in a bit.
+const widths = {
+  narrow: "max-w-5xl",
+  default: "max-w-6xl",
+  wide: "max-w-7xl",
+};
+
 interface SectionProps {
-  /** Anchor target for the header nav links. */
-  id?: string;
+  id?: string; // anchor target for the header nav links
   className?: string;
   children: ReactNode;
-  /** Labels the section for screen readers when it has no visible heading. */
+  width?: keyof typeof widths;
+  // for a section with no visible heading
   "aria-label"?: string;
   "aria-labelledby"?: string;
 }
 
-/** Full-bleed band with the shared public-page gutter and vertical rhythm. */
-export function Section({ id, className, children, ...aria }: SectionProps) {
+// Full-bleed band with the gutter the public pages share. The vertical padding
+// here is only a starting point - sections override it so the page does not
+// march down at one fixed beat.
+export function Section({ id, className, children, width = "default", ...aria }: SectionProps) {
   return (
     <section id={id} className={cn("py-20 sm:py-24", className)} {...aria}>
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">{children}</div>
+      <div className={cn("mx-auto w-full px-4 sm:px-6 lg:px-8", widths[width])}>{children}</div>
     </section>
   );
 }
@@ -25,7 +36,7 @@ interface SectionHeadingProps {
   eyebrow?: string;
   title: ReactNode;
   description?: ReactNode;
-  /** Dark bands invert the type colours instead of shipping a second component. */
+  // dark flips the text colours rather than us having a second component
   tone?: "light" | "dark";
   align?: "left" | "center";
   id?: string;

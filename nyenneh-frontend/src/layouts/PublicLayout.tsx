@@ -4,17 +4,13 @@ import { Outlet } from "react-router-dom";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteHeader } from "@/components/landing/SiteHeader";
 
-/**
- * Chrome for every page a visitor can reach signed out: the landing page,
- * leadership, questions and contact.
- *
- * The header and footer sit outside the <Outlet>, so moving between public
- * pages swaps the content without re-rendering the navigation.
- */
+// Wraps every page you can reach signed out: landing, leadership, questions,
+// contact. Header and footer sit outside the <Outlet> so moving between them
+// only swaps the content and leaves the nav alone.
 export default function PublicLayout() {
-  // Every call to action out here leads to the sign-in screen, which is its own
-  // chunk. Fetch it once the browser is idle so the click is instant without
-  // the download competing with first paint.
+  // every CTA out here ends up at the login screen, which is its own chunk.
+  // grab it once the browser is idle so the click feels instant without the
+  // download getting in the way of first paint.
   useEffect(() => {
     const prefetch = () => void import("@/pages/auth/LoginPage");
 
@@ -38,7 +34,7 @@ export default function PublicLayout() {
 
       <SiteHeader />
 
-      {/* The sticky header would cover an anchor target, so offset the scroll. */}
+      {/* offset the scroll or the sticky header sits on top of the anchor */}
       <main id="main" className="scroll-mt-16 [&_section]:scroll-mt-16">
         <Outlet />
       </main>

@@ -11,10 +11,8 @@ export interface InvoiceFilters {
   session?: string;
 }
 
-/**
- * Invoices are generated from the session's fee structure rather than typed in
- * line by line, so issuing one names a cohort and a period, not an amount.
- */
+// Invoices come from the session's fee structure, we don't type amounts in by
+// hand - so issuing one means naming a cohort and a period.
 export interface InvoiceInput {
   session: number;
   semester?: number | null;
@@ -29,17 +27,15 @@ export interface PaymentInput {
   reference?: string;
 }
 
-/**
- * A student settling their own balance. No invoice id: the amount is a lump sum
- * and the server spreads it across outstanding invoices, so allocation rules
- * stay in one place instead of being reimplemented in the UI.
- */
+// A student paying off their balance. No invoice id - it is a lump sum and
+// the server spreads it over the outstanding invoices. Keeps the allocation
+// rules in one place instead of us reimplementing them here.
 export interface SettleInput {
   amount: number;
   method: PaymentMethod;
 }
 
-/** "overdue" is derived client-side, so the server cannot be asked to filter on it. */
+// "overdue" is ours, the server can't filter on it
 function invoiceParams(filters: InvoiceFilters) {
   const { status, ...rest } = filters;
   if (!status) return rest;
@@ -52,29 +48,26 @@ export const financeService = {
     const rows = unwrapList(
       await get<Row[]>(endpoints.finance.invoices, { params: invoiceParams(filters) }),
     ).map(toInvoice);
-    // The server has no notion of "overdue", so narrow the outstanding set here.
+    // so narrow it down here instead
     return filters.status === "overdue"
       ? rows.filter((invoice) => invoice.status === "overdue")
       : rows;
   },
 
-  /** Bills a session's fee structure to the named students. */
   createInvoice: async (payload: InvoiceInput) => {
     const data = await post<{ created: Row[] }>(endpoints.finance.generateInvoices, payload);
     return (data.created ?? []).map(toInvoice);
   },
 
-  /** The invoice list is already scoped to the signed-in student by the server. */
+  // already scoped to the signed-in student by the server
   myInvoices: async (): Promise<Invoice[]> =>
     unwrapList(await get<Row[]>(endpoints.finance.invoices)).map(toInvoice),
 
   listPayments: async (params: { invoice?: number } = {}): Promise<Payment[]> =>
     unwrapList(await get<Row[]>(endpoints.finance.payments, { params })).map(toPayment),
 
-  /**
-   * Recording a payment at the bursary desk. It lands unconfirmed and is then
-   * confirmed, which is the step that actually moves the invoice's balance.
-   */
+  // Payment taken at the bursary desk. It lands unconfirmed, and it is the
+  // confirm call that actually moves the invoice balance.
   recordPayment: async (payload: PaymentInput): Promise<Payment> => {
     const created = await post<Row>(endpoints.finance.payments, {
       invoice: payload.invoice,

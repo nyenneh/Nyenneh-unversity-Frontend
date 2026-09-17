@@ -18,11 +18,9 @@ const sizes: Record<ButtonSize, string> = {
   icon: "h-9 w-9",
 };
 
-/**
- * The button recipe on its own, so an anchor or router <Link> can look exactly
- * like a <Button> without nesting a button inside a link. It lives outside
- * Button.tsx so that file keeps exporting only components (fast refresh).
- */
+// Just the classes, so an <a> or a router <Link> can look like a <Button>
+// without sticking a button inside a link. Kept out of Button.tsx so that file
+// only exports components and fast refresh keeps working.
 export function buttonClasses({
   variant = "primary",
   size = "md",

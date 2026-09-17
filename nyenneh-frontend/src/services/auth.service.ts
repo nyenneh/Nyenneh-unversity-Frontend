@@ -14,17 +14,12 @@ interface ApiLoginResponse {
   user: ApiUser;
 }
 
-/**
- * The roll number lives on the student record rather than the account,
- * so the header needs a second call to show it.
- *
- * A non-student has no such record and the 404 that comes back is expected, not
- * a failure worth propagating — the portal just shows no roll number.
- *
- * `accessToken` is passed in at login time because the request interceptor
- * reads the token from storage, and the auth store only writes it once login
- * has resolved.
- */
+// The roll number is on the student record, not the account, so the header
+// needs a second call for it. A non-student has no such record and the 404 is
+// expected - we just show no roll number.
+//
+// accessToken is passed in at login because the request interceptor reads the
+// token from storage and the store only writes it after login resolves.
 async function rollNumberFor(
   user: User,
   accessToken?: string,
@@ -63,7 +58,7 @@ export const authService = {
   changePassword: (payload: { current_password: string; new_password: string }) =>
     post<{ detail: string }>(endpoints.auth.changePassword, {
       ...payload,
-      // The server asks for the new password twice; the UI collects it once.
+      // server wants it twice, the form only asks once
       confirm_password: payload.new_password,
     }),
 };

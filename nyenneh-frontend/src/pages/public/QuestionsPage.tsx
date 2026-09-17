@@ -17,17 +17,17 @@ type Filter = FaqCategory | "All";
 
 const filters: Filter[] = ["All", ...faqCategories];
 
-/** Search covers the answers too — people type the problem, not the question. */
+// search the answers as well as the questions - people type their problem,
+// not the question we happened to write
 function matches(haystack: string[], needle: string) {
   const query = needle.trim().toLowerCase();
   if (!query) return true;
-  // Every word has to appear somewhere, so "register fees" narrows rather than widens.
+  // every word has to appear, so "register fees" narrows instead of widening
   const words = query.split(/\s+/);
   const text = haystack.join(" ").toLowerCase();
   return words.every((word) => text.includes(word));
 }
 
-/** One numbered step in the registration walkthrough. */
 function StepCard({ step, index }: { step: (typeof registrationSteps)[number]; index: number }) {
   const { ref, className, style } = useReveal<HTMLLIElement>({ delay: index * 80 });
 
@@ -95,7 +95,7 @@ export default function QuestionsPage() {
         </dl>
       </PageHero>
 
-      {/* Registration, start to finish — the question this page exists for. */}
+      {/* registration start to finish - the reason this page exists */}
       <Section id="how-to-register-steps" aria-labelledby="register-heading">
         <Reveal>
           <SectionHeading
@@ -126,7 +126,7 @@ export default function QuestionsPage() {
         </Reveal>
       </Section>
 
-      {/* The searchable answer bank. */}
+      {/* the searchable answer bank */}
       <Section id="answers" className="bg-ink-50" aria-labelledby="answers-heading">
         <Reveal>
           <SectionHeading
@@ -216,7 +216,7 @@ export default function QuestionsPage() {
           ) : (
             <FaqAccordion
               items={results}
-              // Category headings only earn their place in a mixed list.
+              // headings only help when the list is mixed
               showCategory={category === "All"}
               className="mt-4"
             />
@@ -224,7 +224,7 @@ export default function QuestionsPage() {
         </Reveal>
       </Section>
 
-      {/* Nothing matched, or it needs a person. */}
+      {/* nothing matched, or it needs an actual person */}
       <Section id="ask" aria-labelledby="ask-heading">
         <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
           <div>

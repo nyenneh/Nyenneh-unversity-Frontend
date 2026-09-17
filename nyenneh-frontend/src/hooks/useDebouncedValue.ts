@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-/** Delays a value so a search box does not fire a request per keystroke. */
+// stops the search boxes firing a request on every keystroke
 export function useDebouncedValue<T>(value: T, delay = 350): T {
   const [debounced, setDebounced] = useState(value);
 

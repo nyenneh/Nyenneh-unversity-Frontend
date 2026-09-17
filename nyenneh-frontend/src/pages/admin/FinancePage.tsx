@@ -31,11 +31,9 @@ const STATUS_LABELS: Record<InvoiceStatus, string> = {
   cancelled: "Cancelled",
 };
 
-/**
- * An invoice is not typed in line by line: the server bills the session's fee
- * structure for the student's programme and level, so issuing one names who and
- * when, never how much.
- */
+// You don't type an invoice in line by line. The server bills the session's
+// fee structure for that student's programme and level, so issuing one is a
+// question of who and when, never how much.
 const invoiceSchema = z.object({
   student: z.coerce.number().int().min(1, "Choose a student"),
   session: z.coerce.number().int().min(1, "Choose a session"),
@@ -81,7 +79,7 @@ export default function FinancePage() {
 
   useEffect(() => {
     if (!payingFor) return;
-    // Default to clearing the whole balance — the common case at the bursary.
+    // default to the whole balance, that is what usually happens at the desk
     paymentForm.reset({
       amount: payingFor.balance,
       method: "bank_transfer",

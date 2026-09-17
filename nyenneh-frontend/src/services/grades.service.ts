@@ -17,18 +17,15 @@ export interface GradeScoreInput {
   exam_score: number | null;
 }
 
-/** The scores the server stores are the whole of a result; null means zero. */
+// null means nothing was entered, which counts as zero
 const score = (value: number | null) => value ?? 0;
 
-/**
- * A gradebook row for a course nobody has marked yet.
- *
- * On the server a result only exists once someone records one, but a lecturer
- * needs to see the whole class list to mark it. Ungraded rows are therefore
- * synthesised from the registration and carry a negative id — the enrolment's,
- * negated — so React keys stay unique and `updateScores` can tell a row that
- * needs creating from one that needs updating.
- */
+// A placeholder row for a student nobody has marked yet.
+// The server only has a result once someone records one, but the lecturer
+// needs the whole class list in front of them to mark it. So we fake the
+// missing rows from the registration and give them a negative id (the
+// enrollment id, negated) - keeps the React keys unique and lets updateScores
+// tell "create this" apart from "update this".
 function ungradedRow(enrollment: Enrollment): Grade {
   return {
     id: -enrollment.id,
@@ -57,12 +54,9 @@ interface MyResultsResponse {
 }
 
 export const gradesService = {
-  /**
-   * The mark sheet: every live registration, with its result where one exists.
-   *
-   * Results and registrations are fetched together because a class list is what
-   * a lecturer marks against, and half of it has no result row yet.
-   */
+  // Every live registration with its result where there is one. Both are
+  // fetched because a lecturer marks against the class list, and half of it
+  // has no result row yet.
   list: async (filters: GradeFilters = {}): Promise<Grade[]> => {
     const [results, enrollments] = await Promise.all([
       get<Row[]>(endpoints.grades.list, { params: filters }).then(unwrapList),
@@ -82,7 +76,7 @@ export const gradesService = {
       return gradesByEnrollment.get(enrollment.id) ?? ungradedRow(enrollment);
     });
 
-    // A result whose registration was later dropped still belongs on the sheet.
+    // a result whose registration was dropped afterwards still belongs here
     const seen = new Set(rows.map((row) => row.enrollment));
     for (const grade of gradesByEnrollment.values()) {
       if (!seen.has(grade.enrollment)) rows.push(grade);
@@ -90,7 +84,7 @@ export const gradesService = {
     return rows;
   },
 
-  /** Creates the result on a first mark, and updates it on every later one. */
+  // creates the result the first time, updates it after that
   updateScores: async (id: number, payload: GradeScoreInput) => {
     const body = {
       ca_score: score(payload.ca_score),
@@ -106,15 +100,12 @@ export const gradesService = {
 
   publish: (ids: number[]) =>
     post<{ updated: number }>(endpoints.grades.publish, {
-      // Never a synthesised row: an unmarked result has nothing to publish.
+      // skip the fake rows, there is nothing to publish on an unmarked result
       results: ids.filter((id) => id > 0),
     }),
 
-  /**
-   * The server returns the published results and the per-semester GPA rows
-   * separately. The portal shows one card per semester, so they are joined here
-   * on the semester id.
-   */
+  // The server sends the published results and the per-semester GPA rows as
+  // two lists. We show one card per semester, so join them on the semester id.
   myResults: async (): Promise<ResultSummary[]> => {
     const data = await get<MyResultsResponse>(endpoints.grades.myResults);
 

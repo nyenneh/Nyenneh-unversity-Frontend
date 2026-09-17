@@ -58,8 +58,8 @@ export default function AttendancePage() {
   const [heldOn, setHeldOn] = useState(today());
   const [topic, setTopic] = useState("");
 
-  // Marks being edited, keyed by enrollment. Seeded from whatever the server
-  // already holds so an untouched row re-submits unchanged.
+  // marks being edited, keyed by enrollment. seeded from what the server
+  // already has so an untouched row goes back up unchanged.
   const [marks, setMarks] = useState<Record<number, AttendanceStatus>>({});
   const rows = useMemo(() => register.data?.rows ?? [], [register.data]);
 

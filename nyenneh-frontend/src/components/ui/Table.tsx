@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-/** Horizontal scroll lives on this wrapper so wide tables never widen the page. */
+// the horizontal scroll goes on this wrapper so a wide table can't stretch the page
 export function TableWrap({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div className={cn("scrollbar-slim w-full overflow-x-auto", className)}>

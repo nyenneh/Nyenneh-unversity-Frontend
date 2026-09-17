@@ -1,11 +1,6 @@
 /*
- * DISCONNECTED — kept for reference only.
- *
- * These fixtures were written against a draft API contract (class slots,
- * announcements, an enrollment approval workflow, course capacity) that the
- * Django backend does not implement. The portal now talks to the real API
- * through `services/adapters.ts`, so nothing imports this file and it is
- * excluded from typechecking in tsconfig.app.json.
+ * NOT WIRED UP ANY MORE - kept around for reference. See mockAdapter.ts.
+ * Written against an early API contract the Django side never implemented.
  */
 
 import type {
@@ -23,10 +18,8 @@ import type {
 
 export const SESSION = "2025/2026";
 
-/**
- * Fixture dates are relative to today so the demo never rots into a statement
- * where every charge reads "overdue" months after the fixtures were written.
- */
+// dates are relative to today, otherwise the demo statement ends up showing
+// every charge as overdue a few months after these were written
 const dayOffset = (days: number) =>
   new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
 

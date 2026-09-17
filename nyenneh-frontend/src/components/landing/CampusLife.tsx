@@ -25,7 +25,7 @@ const highlights = [
   },
 ];
 
-/** The student quote. Kept a <figure> so the caption stays tied to the quote. */
+// <figure> so the caption stays attached to the quote
 function Testimonial() {
   const {
     ref: revealRef,
@@ -59,7 +59,10 @@ function Testimonial() {
 export function CampusLife() {
   return (
     <>
-      <Section id="campus" className="bg-white" aria-labelledby="campus-heading">
+      {/* the one centred heading on the page. It reads as a deliberate pause
+          before the closing call to action; centring them all just looked like
+          a template. */}
+      <Section id="campus" className="bg-white py-24 sm:py-28" aria-labelledby="campus-heading">
         <Reveal>
           <SectionHeading
             id="campus-heading"
@@ -70,7 +73,7 @@ export function CampusLife() {
           />
         </Reveal>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
           {highlights.map((item, index) => (
             <Reveal key={item.title} delay={index * 90} className="rounded-2xl bg-ink-50 p-6">
               <span className="grid size-11 place-items-center rounded-xl bg-white text-navy-900 shadow-sm">
@@ -85,7 +88,7 @@ export function CampusLife() {
         <Testimonial />
       </Section>
 
-      {/* Closing call to action — gold band, navy type. */}
+      {/* closing CTA, gold band */}
       <div className="bg-brand-500">
         <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <Reveal className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">

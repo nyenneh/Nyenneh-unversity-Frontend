@@ -5,19 +5,14 @@ import { cn } from "@/lib/utils";
 
 interface RevealProps {
   children: ReactNode;
-  /** Milliseconds to hold back, for staggering siblings. */
-  delay?: number;
+  delay?: number; // ms, for staggering siblings
   className?: string;
 }
 
-/**
- * A plain wrapper around `useReveal`, for the common case of easing a block of
- * content in as it is scrolled to.
- *
- * Where the element already exists — a card in a grid, an item in a list —
- * reach for the hook instead and spread it onto that element. Wrapping a grid
- * item in a div makes the wrapper the grid item, which breaks the row.
- */
+// Wrapper round useReveal for the usual case of fading in a block of content.
+// If the element already exists (a card in a grid, an item in a list) use the
+// hook directly instead - wrapping a grid item in a div makes the div the grid
+// item and the row breaks.
 export function Reveal({ children, delay, className }: RevealProps) {
   const {
     ref: revealRef,

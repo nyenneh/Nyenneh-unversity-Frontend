@@ -8,7 +8,6 @@ import type { Office } from "@/content/contact";
 import { useReveal } from "@/hooks/useReveal";
 import { cn } from "@/lib/utils";
 
-/** One office, easing in as the grid is scrolled to. */
 function OfficeTile({ office, delay }: { office: Office; delay: number }) {
   const {
     ref: revealRef,
@@ -54,16 +53,17 @@ function OfficeTile({ office, delay }: { office: Office; delay: number }) {
 }
 
 export function Contact() {
-  // The last grid cell is a list item like the others, so it takes the hook
-  // directly rather than the <div> that <Reveal> would render.
+  // this one is an <li> like its siblings, so use the hook directly instead of
+  // <Reveal>, which would wrap it in a div and break the grid
   const {
     ref: ctaRef,
     className: ctaClass,
     style: ctaStyle,
   } = useReveal<HTMLLIElement>({ delay: offices.length * 70 });
 
+  // last thing before the footer, so give it a bit more air
   return (
-    <Section id="contact" className="bg-ink-50" aria-labelledby="contact-heading">
+    <Section id="contact" className="bg-ink-50 py-24 sm:py-28" aria-labelledby="contact-heading">
       <Reveal>
         <SectionHeading
           id="contact-heading"
@@ -73,8 +73,10 @@ export function Contact() {
         />
       </Reveal>
 
-      <div className="mt-12 grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-        {/* Where we are. */}
+      {/* same reason as the admissions grid: without items-start the navy
+          panel stretches down past the office cards */}
+      <div className="mt-14 grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+        {/* where we are */}
         <Reveal className="rounded-2xl bg-navy-950 p-8 text-navy-200">
           <h3 className="text-lg font-semibold text-white">Main campus</h3>
 
@@ -121,14 +123,14 @@ export function Contact() {
           </a>
         </Reveal>
 
-        {/* Who to write to. */}
+        {/* who to write to */}
         <div>
           <ul className="grid gap-4 sm:grid-cols-2">
             {offices.map((office, index) => (
               <OfficeTile key={office.id} office={office} delay={index * 70} />
             ))}
 
-            {/* Fills the last cell of the grid rather than leaving a gap. */}
+            {/* fills the last cell instead of leaving a gap */}
             <li
               ref={ctaRef}
               style={ctaStyle}

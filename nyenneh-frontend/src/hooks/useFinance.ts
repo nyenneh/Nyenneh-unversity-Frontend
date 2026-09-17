@@ -26,7 +26,7 @@ export function useMyInvoices() {
   });
 }
 
-/** Omit `invoice` for every payment the signed-in user is allowed to see. */
+// leave `invoice` out to get everything the signed-in user is allowed to see
 export function usePayments(invoice?: number) {
   return useQuery({
     queryKey: queryKeys.finance.payments({ invoice }),

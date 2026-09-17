@@ -11,13 +11,13 @@ import type { Weekday } from "@/types";
 
 const DAYS: Weekday[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
-/** Monday is index 0 here; Sunday falls back to Monday's column. */
+// monday is 0 in DAYS, and sunday just falls back to monday's column
 function todayName(): Weekday {
   return DAYS[Math.max(0, new Date().getDay() - 1)] ?? "monday";
 }
 
 export default function SchedulePage() {
-  // Scoped to the signed-in student by the server, from their approved courses.
+  // server scopes this to the signed-in student's approved courses
   const { data, isPending, isError, error, refetch } = useMySchedule();
   const today = todayName();
 

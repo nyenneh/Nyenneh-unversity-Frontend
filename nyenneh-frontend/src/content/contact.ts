@@ -1,21 +1,16 @@
 import { Banknote, GraduationCap, LifeBuoy, ScrollText, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-/**
- * Who a visitor should actually write to, and where the campus is.
- *
- * Placeholder details — swap for the university's published contacts. The
- * footer, the contact section and the contact page all read from here, so one
- * edit changes every copy of an address or a phone number on the site.
- *
- * The two details a visitor can reach the university on — the general inbox
- * and the switchboard — can also be set per deployment, so a new number or a
- * new inbox does not need a code change. The values below are the fallbacks,
- * and they are what the .env files ship with; see VITE_CONTACT_EMAIL and
- * VITE_CONTACT_PHONE there.
- */
+// Who to write to and where the campus is.
+// TODO: placeholder details, swap for the university's published contacts.
+// The footer, the contact section and the contact page all read from here, so
+// one edit changes every address and phone number on the site.
+//
+// The inbox and the switchboard can also be set per deployment (see
+// VITE_CONTACT_EMAIL / VITE_CONTACT_PHONE in the .env files) so changing
+// either doesn't need a code change. What's below is just the fallback.
 
-/** Digits only with the country code, the shape tel: and wa.me both want. */
+// digits + country code, which is what tel: and wa.me both want
 function dialFormat(phone: string) {
   return `+${phone.replace(/\D/g, "")}`;
 }
@@ -26,12 +21,10 @@ export const campus = {
   line1: "Tubman Boulevard",
   line2: "Sinkor, Monrovia",
   country: "Republic of Liberia",
-  /** Opens the address in whichever maps app the visitor has. */
   mapUrl:
     "https://www.google.com/maps/search/?api=1&query=Tubman+Boulevard%2C+Sinkor%2C+Monrovia",
   switchboard,
-  /** Digits only, for tel: links. */
-  switchboardDial: dialFormat(switchboard),
+  switchboardDial: dialFormat(switchboard), // for tel: links
   generalEmail: (import.meta.env.VITE_CONTACT_EMAIL as string | undefined) || "info@nyenneh.edu",
   openingHours: "Monday to Friday, 08:00 – 16:00",
   closedNote: "Offices close on public holidays and during the mid-semester break.",
@@ -41,12 +34,10 @@ export interface Office {
   id: string;
   name: string;
   icon: LucideIcon;
-  /** What this office can actually settle, so enquiries land in the right inbox. */
-  handles: string;
+  handles: string; // what they can actually settle, so enquiries land in the right inbox
   email: string;
   phone: string;
-  /** Derived from `phone`, so the two can never drift apart. */
-  phoneDial: string;
+  phoneDial: string; // derived from phone so they can't drift apart
   hours: string;
 }
 
@@ -108,7 +99,7 @@ export const offices: Office[] = officeDetails.map((office) => ({
   phoneDial: dialFormat(office.phone),
 }));
 
-/** Topics offered in the enquiry form, in the order a visitor is likely to need them. */
+// enquiry form topics, roughly in the order people need them
 export const enquiryTopics = [
   "Admission and entry requirements",
   "How to register for courses",

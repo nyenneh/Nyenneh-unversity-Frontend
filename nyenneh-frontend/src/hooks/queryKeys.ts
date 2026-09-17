@@ -5,10 +5,9 @@ import type { LecturerAccountFilters } from "@/services/lecturerAccounts.service
 import type { AllocationFilters } from "@/services/lecturer.service";
 import type { StudentFilters } from "@/services/students.service";
 
-/**
- * Central key factory. Mutations invalidate by prefix (e.g. `queryKeys.courses.all`),
- * so a new filtered list never needs a matching invalidation added by hand.
- */
+// All the query keys in one place. Mutations invalidate by prefix
+// (queryKeys.courses.all and so on), so adding a new filtered list doesn't
+// mean going round adding invalidations for it.
 export const queryKeys = {
   faculties: {
     all: ["faculties"] as const,

@@ -4,23 +4,19 @@ import { offices } from "@/content/contact";
 import type { Faq } from "@/content/faqs";
 import { cn } from "@/lib/utils";
 
-/** Answers name the office that settles them; this turns that id into a contact. */
+// answers name the office that deals with them, this turns the id into a contact
 function officeFor(id: string | undefined) {
   return id ? offices.find((office) => office.id === id) : undefined;
 }
 
 interface FaqAccordionProps {
   items: Faq[];
-  /** Adds the category above each question, for a mixed list such as search results. */
-  showCategory?: boolean;
+  showCategory?: boolean; // for a mixed list, e.g. search results
   className?: string;
 }
 
-/**
- * Built on <details>/<summary>, so a question opens without JavaScript, the
- * keyboard works for free, and the browser's find-in-page can reach an answer
- * inside a collapsed panel.
- */
+// <details>/<summary> rather than our own accordion: it opens without JS, the
+// keyboard works for free, and find-in-page can still reach a collapsed answer.
 export function FaqAccordion({ items, showCategory = false, className }: FaqAccordionProps) {
   return (
     <div className={cn("divide-y divide-ink-200/70 overflow-hidden rounded-2xl border border-ink-200/70 bg-white", className)}>

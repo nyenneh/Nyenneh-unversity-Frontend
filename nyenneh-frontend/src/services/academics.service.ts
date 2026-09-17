@@ -52,16 +52,14 @@ export interface CourseInput {
   level: number;
   semester: "first" | "second";
   department: number;
-  /** Null for no seat limit. */
-  capacity: number | null;
+  capacity: number | null; // null = no seat limit
   is_active: boolean;
 }
 
 export interface ClassSlotInput {
   course: number;
   day: Weekday;
-  /** "HH:MM" in 24-hour form. */
-  start_time: string;
+  start_time: string; // "HH:MM"
   end_time: string;
   venue: string;
   lecturer: number | null;
@@ -74,7 +72,7 @@ export interface SlotFilters {
   semester?: "first" | "second";
 }
 
-/** The API filters on `semester_number`, not the portal's "first"/"second". */
+// the API filters on semester_number, we use "first"/"second"
 function courseParams(filters: CourseFilters) {
   const { semester, ...rest } = filters;
   return {
@@ -91,7 +89,7 @@ function courseBody(payload: Partial<CourseInput>) {
   };
 }
 
-/** The API numbers weekdays and wants seconds on its times. */
+// the API numbers the weekdays and wants seconds on the times
 function slotBody(payload: Partial<ClassSlotInput>) {
   const { day, ...rest } = payload;
   return {
@@ -116,7 +114,7 @@ export const academicsService = {
     try {
       return toSemesterTerm(await get<Row>(endpoints.semesters.current));
     } catch {
-      // 404 until the registry marks a semester current — not an error state.
+      // 404 until the registry marks one current, which isn't an error
       return null;
     }
   },
@@ -168,7 +166,6 @@ export const academicsService = {
       }),
     ).map(toClassSlot),
 
-  /** The signed-in student's own timetable, from their approved courses. */
   mySchedule: async (): Promise<ClassSlot[]> =>
     unwrapList(await get<Row[]>(endpoints.slots.mySchedule)).map(toClassSlot),
 
@@ -180,7 +177,6 @@ export const academicsService = {
 
   deleteSlot: (id: number) => del(endpoints.slots.detail(id)),
 
-  /** Accounts that can be put in front of a class. */
   listLecturers: async (): Promise<Lecturer[]> =>
     unwrapList(
       await get<Row[]>(endpoints.lecturers.list, { params: { role: "LECTURER" } }),
@@ -202,10 +198,8 @@ export const academicsService = {
       }),
     ).map(toEnrollment),
 
-  /**
-   * Requesting one course. The server derives the student from the token, and
-   * the request lands pending until the registry approves it.
-   */
+  // student comes from the token, and it lands pending until the registry
+  // approves it
   enroll: async (courseId: number, semesterId: number) =>
     toEnrollment(
       await post<Row>(endpoints.enrollments.list, {
@@ -214,10 +208,10 @@ export const academicsService = {
       }),
     ),
 
-  /** Drops the course rather than deleting the row, keeping the history. */
+  // marks it dropped rather than deleting the row, so the history survives
   dropEnrollment: (id: number) => del(endpoints.enrollments.detail(id)),
 
-  /** Registry decisions. Approval re-checks that a seat is still free. */
+  // registry decisions. approve re-checks there is still a seat.
   approveEnrollment: async (id: number) =>
     toEnrollment(await post<Row>(endpoints.enrollments.approve(id))),
 

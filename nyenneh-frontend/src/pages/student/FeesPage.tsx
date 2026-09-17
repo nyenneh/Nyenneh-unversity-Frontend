@@ -16,7 +16,7 @@ import { cn, formatCurrency, formatDate, formatDateTime, titleCase } from "@/lib
 import { getErrorMessage } from "@/services/api";
 import type { PaymentMethod } from "@/types";
 
-/** Mirrors the payment methods the API accepts; "waiver" is bursary-only. */
+// matches what the API accepts. "waiver" is bursary only, not listed here.
 const METHODS: { value: PaymentMethod; label: string }[] = [
   { value: "bank_transfer", label: "Bank Transfer" },
   { value: "card", label: "Debit / Credit Card" },
@@ -34,13 +34,13 @@ type PayForm = z.input<typeof paySchema>;
 export default function FeesPage() {
   const { data, isPending, isError, error, refetch } = useMyInvoices();
   const settle = useSettleBalance();
-  // Every payment on the account, so the history below is not per-invoice.
+  // no invoice filter - we want the whole history, not one invoice's
   const history = usePayments();
 
   const invoices = data ?? [];
 
-  // The sketch bills per semester; the newest session/semester on the account is
-  // the one being settled, and older terms stay in the history below.
+  // billing is per semester, so the newest session/semester is the one being
+  // settled. older terms just stay in the history below.
   const current = invoices.length
     ? [...invoices].sort((a, b) =>
         `${b.session}${b.semester}`.localeCompare(`${a.session}${a.semester}`),
@@ -69,7 +69,7 @@ export default function FeesPage() {
     defaultValues: { amount: 0, method: "bank_transfer" },
   });
 
-  // Prefill with the full balance — settling up is the common case.
+  // prefill the full balance, most people are clearing the lot
   useEffect(() => {
     reset({ amount: outstanding, method: "bank_transfer" });
   }, [outstanding, reset]);
@@ -121,7 +121,7 @@ export default function FeesPage() {
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-5">
-          {/* ---- Billing breakdown --------------------------------------- */}
+          {/* ---- billing breakdown ---- */}
           <Card className="lg:col-span-3">
             <CardHeader
               title="Current semester billing breakdown"
@@ -154,8 +154,8 @@ export default function FeesPage() {
                 ))}
               </tbody>
 
-              {/* Totals read as a continuation of the statement, so they stay
-                  inside the same table rather than in a separate card. */}
+              {/* totals belong to the statement, so keep them in the same
+                  table instead of a separate card */}
               <tfoot>
                 <tr className="bg-ink-50/70">
                   <Td colSpan={3} className="font-semibold text-ink-900">
@@ -197,7 +197,7 @@ export default function FeesPage() {
             </TableWrap>
           </Card>
 
-          {/* ---- Payment gateway ----------------------------------------- */}
+          {/* ---- payment ---- */}
           <div className="space-y-6 lg:col-span-2">
             <Card>
               <CardHeader

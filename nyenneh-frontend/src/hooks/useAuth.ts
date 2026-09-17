@@ -21,7 +21,7 @@ export function useLogin(redirectTo?: string) {
     onSuccess: ({ user, access, refresh }) => {
       signIn(user, { access, refresh });
 
-      // An account still holding its emailed password can reach nothing else.
+      // nothing else is reachable until they have changed it
       if (user.must_change_password) {
         navigate("/change-password", { replace: true });
         return;
@@ -41,7 +41,7 @@ export function useLogout() {
 
   return () => {
     signOut();
-    // Drop cached data so the next account never sees the previous one.
+    // wipe the cache so the next login never sees the last person's data
     queryClient.clear();
     navigate("/login", { replace: true });
   };

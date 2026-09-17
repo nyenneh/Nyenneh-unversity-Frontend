@@ -5,36 +5,28 @@ import type { KeyboardEvent, PointerEvent } from "react";
 import { departments } from "@/content/departments";
 import { cn } from "@/lib/utils";
 
-/** How long a department holds the panel before the next one slides in. */
 const INTERVAL_MS = 6000;
+const SWIPE_THRESHOLD = 50; // px of travel before we call it a swipe and not a tap
 
-/** Horizontal travel, in px, that counts as a swipe rather than a tap. */
-const SWIPE_THRESHOLD = 50;
-
-/** Read once at mount: there is no need to react to a mid-visit change. */
 function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 }
 
-/**
- * The six departments, one at a time.
- *
- * All six slides stay mounted on a track that is translated sideways, so a move
- * is a single composited transform rather than a mount and unmount per step.
- * The off-screen slides are `inert`, which takes them out of the tab order and
- * out of the accessibility tree — without it a screen reader reads all six
- * departments as one run-on block.
- *
- * It advances on its own but stops the moment the visitor shows any interest: a
- * pointer over the panel, focus inside it, or a press of the pause button.
- * Anyone who has asked their system not to animate never gets auto-advance at
- * all, and moves through the departments by hand.
- */
+// The six departments, one at a time.
+//
+// All six stay mounted on a track we slide sideways, so moving between them is
+// one composited transform instead of a mount/unmount each time. The offscreen
+// ones get `inert` - without it a screen reader just reads all six departments
+// out as one long block.
+//
+// It advances by itself but stops as soon as anyone shows interest: pointer
+// over the panel, focus inside it, or the pause button. Reduced motion means
+// no auto-advance at all.
 export function DepartmentSlideshow() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
-  // A deliberate opt-out, kept apart from `paused` so that moving the pointer
-  // off the panel does not restart what the visitor stopped on purpose.
+  // separate from `paused` on purpose: moving the mouse away shouldn't restart
+  // something the visitor deliberately stopped
   const [stopped, setStopped] = useState(prefersReducedMotion);
 
   const count = departments.length;
@@ -49,15 +41,15 @@ export function DepartmentSlideshow() {
     if (!playing) return;
     const timer = window.setInterval(() => setActive((i) => (i + 1) % count), INTERVAL_MS);
     return () => window.clearInterval(timer);
-    // `active` is a dependency so that a manual move restarts the countdown,
-    // rather than cutting the new slide short with whatever time was left.
+    // `active` is in the deps so moving by hand restarts the countdown instead
+    // of cutting the new slide short
   }, [playing, count, active]);
 
-  // Pointer position at the start of a drag, or null when no drag is in flight.
+  // where the drag started, null when nothing is being dragged
   const swipeStart = useRef<number | null>(null);
 
   function onPointerDown(event: PointerEvent) {
-    // A mouse drag is a text selection, not a swipe. Touch and pen only.
+    // a mouse drag is someone selecting text, not swiping
     if (event.pointerType === "mouse") return;
     swipeStart.current = event.clientX;
   }
@@ -90,14 +82,14 @@ export function DepartmentSlideshow() {
       onKeyDown={onKeyDown}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      // React's onFocus and onBlur bubble, so these cover focus anywhere inside.
+      // react's onFocus/onBlur bubble, so this covers focus anywhere inside
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
       <div
         className="overflow-hidden rounded-3xl border border-ink-200/70 bg-white shadow-sm shadow-ink-950/[0.04]"
-        // Announced only once it is under the visitor's control: a slide nobody
-        // asked for should not interrupt whatever is being read.
+        // only announce it once it is under their control - a slide nobody
+        // asked for shouldn't interrupt what they are reading
         aria-live={playing ? "off" : "polite"}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
@@ -118,8 +110,8 @@ export function DepartmentSlideshow() {
               aria-label={`${index + 1} of ${count}: ${department.name}`}
               className="grid w-full shrink-0 md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]"
             >
-              {/* Identity on navy, detail on white — the same split the portal
-                  uses for a record header and its body. */}
+              {/* name on navy, details on white, same split as the portal
+                  uses for a record header */}
               <div className="flex flex-col justify-between gap-8 bg-navy-950 p-8 sm:p-10">
                 <div>
                   <span className="grid size-12 place-items-center rounded-xl bg-white/10 text-brand-400">
@@ -175,8 +167,8 @@ export function DepartmentSlideshow() {
       </div>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        {/* Codes rather than dots: at six slides a dot says nothing about where
-            it goes, and the codes are what students register under anyway. */}
+        {/* codes not dots - with six slides a dot tells you nothing about where
+            it takes you, and codes are what students register under anyway */}
         <div className="flex flex-wrap gap-2">
           {departments.map((department, index) => (
             <button

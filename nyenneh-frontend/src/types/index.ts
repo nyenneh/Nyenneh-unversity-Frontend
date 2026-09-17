@@ -1,13 +1,8 @@
-/**
- * Domain model shared by the whole portal.
- *
- * Field names are snake_case because they came from Django REST Framework, but
- * these are the portal's own shapes, not the raw API payloads: `services/
- * adapters.ts` maps between the two. Nothing outside that module should need to
- * know a backend field name.
- */
+// Types used across the whole portal.
+// snake_case because that is what DRF hands back. These are not the raw
+// payloads though - services/adapters.ts maps between the two, so nothing
+// outside that file should have to know a backend field name.
 
-/** Lecturers reach the staff screens; the API decides what they may do there. */
 export type Role = "student" | "admin" | "lecturer";
 
 export interface User {
@@ -15,11 +10,9 @@ export interface User {
   email: string;
   full_name: string;
   role: Role;
-  /** Present only when role === "student". */
-  roll_number?: string | null;
+  roll_number?: string | null; // students only
   avatar_url?: string | null;
-  /** True while the account still holds the password it was emailed. */
-  must_change_password: boolean;
+  must_change_password: boolean; // true while they are still on the emailed password
 }
 
 export interface AuthTokens {
@@ -48,7 +41,7 @@ export interface Department {
   student_count: number;
 }
 
-/** A degree programme students are admitted into, e.g. BSc Computer Science. */
+// a programme students are admitted into, e.g. BSc Computer Science
 export interface Programme {
   id: number;
   name: string;
@@ -60,7 +53,7 @@ export interface Programme {
   is_active: boolean;
 }
 
-/** An academic year, e.g. 2025/2026. */
+// an academic year, e.g. 2025/2026
 export interface AcademicSession {
   id: number;
   name: string;
@@ -88,12 +81,10 @@ export interface Course {
   semester: Semester;
   department: number;
   department_name: string;
-  /** Seats on offer. Null means the course has no limit. */
-  capacity: number | null;
-  /** Seats held this semester: approved registrations plus pending requests. */
+  capacity: number | null; // null = unlimited
+  // approved registrations plus the ones still pending
   enrolled_count: number;
-  /** Null whenever `capacity` is null. */
-  seats_left: number | null;
+  seats_left: number | null; // null whenever capacity is
   is_active: boolean;
 }
 
@@ -105,7 +96,7 @@ export type Weekday =
   | "friday"
   | "saturday";
 
-/** One weekly meeting of a course: a day, a time and a room. */
+// one weekly meeting of a course: day, time, room
 export interface ClassSlot {
   id: number;
   course: number;
@@ -113,30 +104,22 @@ export interface ClassSlot {
   course_title: string;
   semester: Semester;
   day: Weekday;
-  /** "HH:MM" in 24-hour form. */
-  start_time: string;
+  start_time: string; // "HH:MM", 24 hour
   end_time: string;
   venue: string;
-  /** The lecturer's account id, or null when nobody is assigned yet. */
-  lecturer: number | null;
+  lecturer: number | null; // null until someone is assigned
   lecturer_name: string;
   duration_hours: number;
 }
 
-/** An account that can be put in front of a class. */
 export interface Lecturer {
   id: number;
   full_name: string;
   email: string;
 }
 
-/**
- * A lecturer's portal account, as the admin roster manages it.
- *
- * `Lecturer` above is the trimmed shape the course and allocation pickers need;
- * this one carries the account state an admin acts on — whether the login still
- * works, and whether the emailed password has been replaced yet.
- */
+// The full lecturer account, for the admin roster. `Lecturer` above is the
+// trimmed version the course and allocation pickers use.
 export interface LecturerAccount {
   id: number;
   email: string;
@@ -147,7 +130,6 @@ export interface LecturerAccount {
   last_name: string;
   phone_number: string;
   is_active: boolean;
-  /** True while the account still holds the password it was emailed. */
   must_change_password: boolean;
   last_login: string | null;
   date_joined: string | null;
@@ -169,8 +151,7 @@ export interface Student {
   full_name: string;
   email: string;
   phone: string | null;
-  /** ISO date, "YYYY-MM-DD". Optional on the server. */
-  date_of_birth: string | null;
+  date_of_birth: string | null; // "YYYY-MM-DD", optional on the server
   gender: "M" | "F" | "O" | "";
   address: string | null;
   guardian_name: string | null;
@@ -187,10 +168,8 @@ export interface Student {
   enrolled_on: string;
 }
 
-/**
- * A registration is requested, then approved or refused by the registry.
- * "dropped" is the student withdrawing from a course already approved.
- */
+// requested, then approved or refused by the registry. "dropped" is the
+// student pulling out of something that was already approved.
 export type EnrollmentStatus =
   | "pending"
   | "registered"
@@ -213,8 +192,7 @@ export interface Enrollment {
   status: EnrollmentStatus;
   reviewed_on: string | null;
   reviewed_by_name: string | null;
-  /** Why a request was refused, when it was. */
-  review_note: string;
+  review_note: string; // why it was refused, if it was
   created_at: string;
 }
 
@@ -230,9 +208,8 @@ export interface Grade {
   credit_units: number;
   session: string;
   semester: Semester;
-  /** 0-40, set by the lecturer. */
+  // both entered by the lecturer, CA out of 40 and exam out of 60
   ca_score: number | null;
-  /** 0-60, set by the lecturer. */
   exam_score: number | null;
   total_score: number | null;
   letter_grade: string | null;
@@ -249,10 +226,8 @@ export interface ResultSummary {
   grades: Grade[];
 }
 
-/**
- * "overdue" is not a state the server stores: it is derived from an unsettled
- * invoice whose due date has passed, and is surfaced here so the UI can flag it.
- */
+// "overdue" is not stored on the server, we work it out from an unpaid
+// invoice whose due date has gone by
 export type InvoiceStatus =
   | "pending"
   | "partial"
@@ -284,7 +259,7 @@ export type PaymentMethod =
   | "ussd"
   | "waiver";
 
-/** Money is recorded first and confirmed second; only confirmed money counts. */
+// money is recorded first and confirmed after; only confirmed money counts
 export type PaymentStatus = "pending" | "confirmed" | "failed" | "reversed";
 
 export interface Payment {
@@ -299,22 +274,18 @@ export interface Payment {
   paid_at: string;
 }
 
-/** Result of a student settling part or all of their outstanding balance. */
+// what comes back after a student pays something off
 export interface PaymentResult {
   amount_paid: number;
-  /** One payment per invoice the amount was spread across. */
-  payments: Payment[];
-  /** What is still owed afterwards. */
-  balance: number;
+  payments: Payment[]; // one per invoice the money was split across
+  balance: number; // what is left owing
 }
 
 export interface AdminDashboardStats {
   total_students: number;
   total_courses: number;
   total_departments: number;
-  /** Requests awaiting a decision this semester. */
   pending_enrollments: number;
-  /** Approved registrations for the semester marked current. */
   registered_enrollments: number;
   current_semester: string | null;
   outstanding_fees: number;
@@ -330,7 +301,7 @@ export interface StudentDashboardStats {
   current_semester: string | null;
 }
 
-/** DRF pagination envelope (PageNumberPagination). */
+// DRF's PageNumberPagination envelope
 export interface Paginated<T> {
   count: number;
   next: string | null;
@@ -338,11 +309,9 @@ export interface Paginated<T> {
   results: T[];
 }
 
-/* -------------------------------------------------------------------------- */
-/* lecturer                                                                    */
-/* -------------------------------------------------------------------------- */
+// ---------- lecturer side ----------
 
-/** Which lecturer teaches which course, for one semester. */
+// who teaches what, for one semester
 export interface CourseAllocation {
   id: number;
   lecturer: number;
@@ -352,12 +321,11 @@ export interface CourseAllocation {
   course_title: string;
   semester: number;
   semester_name: string;
-  /** Approved registrations on this course for this semester. */
   student_count: number;
   is_active: boolean;
 }
 
-/** One row of the lecturer's dashboard: a course and how it is going. */
+// a row on the lecturer dashboard: one course and how it is going
 export interface LecturerCourse {
   allocation: number;
   course: number;
@@ -373,8 +341,7 @@ export interface LecturerCourse {
   ungraded_count: number;
   quiz_count: number;
   meetings_held: number;
-  /** Percentage, 0-100. */
-  attendance_rate: number;
+  attendance_rate: number; // 0-100
 }
 
 export interface LecturerDashboardStats {
@@ -386,7 +353,7 @@ export interface LecturerDashboardStats {
 
 export type AttendanceStatus = "present" | "absent" | "late" | "excused";
 
-/** One sitting of a course: the day it actually met. */
+// one sitting of a course, i.e. a day it actually met
 export interface ClassMeeting {
   id: number;
   course: number;
@@ -394,16 +361,13 @@ export interface ClassMeeting {
   course_title: string;
   semester: number;
   semester_name: string;
-  /** The timetable slot it belongs to, when it was a scheduled class. */
-  slot: number | null;
+  slot: number | null; // null for an extra class that was not on the timetable
   day: string;
   venue: string;
-  /** ISO date, "YYYY-MM-DD". */
-  held_on: string;
+  held_on: string; // "YYYY-MM-DD"
   topic: string;
   taken_by_name: string;
-  /** Students registered for the course when it met. */
-  expected: number;
+  expected: number; // students registered at the time
   marked_count: number;
   present_count: number;
 }
@@ -421,7 +385,6 @@ export interface AttendanceRecord {
   note: string;
 }
 
-/** A class list for one meeting: every registered student, marked or not. */
 export interface RegisterRow {
   enrollment: Enrollment;
   record: AttendanceRecord | null;
@@ -434,10 +397,8 @@ export interface Register {
   rows: RegisterRow[];
 }
 
-/**
- * A student's attendance on one course. `counted` excludes excused absences,
- * which are removed from the denominator rather than held against them.
- */
+// One student's attendance on one course. `counted` leaves out excused
+// absences: those come off the denominator instead of counting against them.
 export interface AttendanceSummaryRow {
   enrollment: Enrollment;
   present: number;
@@ -445,8 +406,7 @@ export interface AttendanceSummaryRow {
   excused: number;
   marked: number;
   counted: number;
-  /** Percentage, 0-100. */
-  rate: number;
+  rate: number; // 0-100
 }
 
 export interface AttendanceSummary {
@@ -455,7 +415,6 @@ export interface AttendanceSummary {
   rows: AttendanceSummaryRow[];
 }
 
-/** A student's own attendance, one row per registered course. */
 export interface MyAttendanceRow {
   course: number;
   course_code: string;
@@ -469,7 +428,7 @@ export interface MyAttendanceRow {
   rate: number;
 }
 
-/** Continuous assessment a lecturer sets, marked out of `max_score`. */
+// a CA test a lecturer sets, marked out of max_score
 export interface Quiz {
   id: number;
   course: number;
@@ -496,8 +455,7 @@ export interface QuizScore {
   roll_number: string;
   score: number;
   max_score: number;
-  /** Of the quiz maximum, 0-100. */
-  percentage: number;
+  percentage: number; // of max_score
   remark: string;
 }
 
@@ -513,11 +471,9 @@ export interface QuizMarkSheet {
   rows: QuizMarkSheetRow[];
 }
 
-/**
- * Quiz performance scaled to the CA marks. Advisory only: the lecturer still
- * enters `ca_score`, and a student who has sat nothing gets no suggestion
- * rather than a zero.
- */
+// Quiz results scaled onto the CA marks. Only a suggestion - the lecturer
+// still types ca_score in themselves. Nothing sat yet gives no suggestion at
+// all rather than a zero.
 export interface CaSuggestion {
   quizzes_taken: number;
   scored: number;

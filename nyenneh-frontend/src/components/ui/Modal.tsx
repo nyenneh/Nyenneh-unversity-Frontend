@@ -31,7 +31,7 @@ export function Modal({
       if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKeyDown);
-    // Stop the page behind the dialog from scrolling.
+    // stop the page behind scrolling while this is open
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {

@@ -1,11 +1,11 @@
 /*
- * DISCONNECTED — kept for reference only.
+ * NOT WIRED UP ANY MORE - kept around for reference.
  *
- * These fixtures were written against a draft API contract (class slots,
- * announcements, an enrollment approval workflow, course capacity) that the
- * Django backend does not implement. The portal now talks to the real API
- * through `services/adapters.ts`, so nothing imports this file and it is
- * excluded from typechecking in tsconfig.app.json.
+ * This was written against an early version of the API (class slots,
+ * announcements, the enrollment approval flow, course capacity) that the
+ * Django side never ended up implementing. Everything goes through the real
+ * API via services/adapters.ts now, so nothing imports this and it is left
+ * out of typechecking in tsconfig.app.json.
  */
 
 import type { AxiosAdapter, AxiosResponse, InternalAxiosRequestConfig } from "axios";
@@ -28,16 +28,13 @@ import type {
   User,
 } from "@/types";
 
-/**
- * An in-memory stand-in for the Django API, enabled with VITE_USE_MOCK_API=true.
- *
- * It is installed as an axios adapter, so every service, hook and page runs the
- * exact same code path it will run against the real backend — only the transport
- * is swapped. Deleting this folder and flipping the flag is the whole migration.
- *
- * Mutations persist for the lifetime of the tab (the arrays below are cloned
- * once at module load), which is enough to demo create/edit/delete flows.
- */
+// A fake Django API held in memory, switched on with VITE_USE_MOCK_API=true.
+// It plugs in as an axios adapter, so the services, hooks and pages all run
+// the same code they run against the real backend - only the transport
+// changes. Deleting this folder and flipping the flag is the whole migration.
+//
+// Changes stick for as long as the tab is open (the arrays are cloned once at
+// module load), which is enough to demo create/edit/delete.
 
 const db = {
   departments: structuredClone(fixtures.departments),
@@ -50,7 +47,7 @@ const db = {
   payments: structuredClone(fixtures.payments),
 };
 
-/** The student record standing in for "the logged-in student". */
+// stands in for "whoever is logged in"
 const CURRENT_STUDENT_ID = 1;
 
 let nextId = 1000;
@@ -81,7 +78,7 @@ function ok<T>(data: T, config: InternalAxiosRequestConfig, status = 200): Axios
   };
 }
 
-/** Strips the axios baseURL and any query string, leaving "courses/12/". */
+// strips the baseURL and the query string, leaving something like "courses/12/"
 function normalisePath(config: InternalAxiosRequestConfig) {
   const raw = config.url ?? "";
   const withoutBase = raw.replace(/^https?:\/\/[^/]+/, "");
@@ -104,7 +101,7 @@ function params(config: InternalAxiosRequestConfig): Record<string, string> {
 const matches = (haystack: string, needle: string) =>
   haystack.toLowerCase().includes(needle.toLowerCase());
 
-/** Copies a fixture user without its password, the way a serializer would. */
+// copy a fixture user minus the password, like a serializer would
 function publicUser(record: (typeof fixtures.users)[number]): User {
   return {
     id: record.id,
@@ -116,7 +113,7 @@ function publicUser(record: (typeof fixtures.users)[number]): User {
   };
 }
 
-// --- derived values -------------------------------------------------------
+// --- derived values ---
 
 const departmentName = (id: number) =>
   db.departments.find((department) => department.id === id)?.name ?? "Unassigned";
@@ -130,7 +127,7 @@ function letterFor(total: number): { letter: string; point: number } {
   return { letter: "F", point: 0 };
 }
 
-/** Recomputes total/letter/point after a score edit, mirroring the serializer. */
+// redo total/letter/point after a score edit, same as the serializer does
 function applyScores(grade: Grade, ca: number | null, exam: number | null): Grade {
   const total = ca !== null && exam !== null ? ca + exam : null;
   const graded = total !== null ? letterFor(total) : null;
@@ -169,13 +166,13 @@ function gpaFor(grades: Grade[]) {
   return Number((points / units).toFixed(2));
 }
 
-// --- route table ----------------------------------------------------------
+// --- route table ---
 
 type Handler = (config: InternalAxiosRequestConfig) => unknown;
 
-/** [method, RegExp, handler]. First match wins; captures are passed via exec. */
+// [method, regex, handler]. first match wins.
 const routes: [string, RegExp, Handler][] = [
-  // Auth ------------------------------------------------------------------
+  // --- auth ---
   [
     "post",
     /^auth\/login\/$/,
@@ -205,7 +202,7 @@ const routes: [string, RegExp, Handler][] = [
   ],
   ["post", /^auth\/change-password\/$/, () => ({ detail: "Password updated." })],
 
-  // Departments -----------------------------------------------------------
+  // --- departments ---
   ["get", /^departments\/$/, () => db.departments],
   [
     "post",
@@ -246,7 +243,7 @@ const routes: [string, RegExp, Handler][] = [
     },
   ],
 
-  // Courses ---------------------------------------------------------------
+  // --- courses ---
   [
     "get",
     /^courses\/$/,
@@ -310,7 +307,7 @@ const routes: [string, RegExp, Handler][] = [
     },
   ],
 
-  // Class slots -----------------------------------------------------------
+  // --- class slots ---
   [
     "get",
     /^class-slots\/$/,
@@ -390,7 +387,7 @@ const routes: [string, RegExp, Handler][] = [
     },
   ],
 
-  // Students --------------------------------------------------------------
+  // --- students ---
   [
     "get",
     /^students\/$/,
@@ -470,7 +467,7 @@ const routes: [string, RegExp, Handler][] = [
     },
   ],
 
-  // Enrollments -----------------------------------------------------------
+  // --- enrollments ---
   [
     "get",
     /^enrollments\/$/,
@@ -543,7 +540,7 @@ const routes: [string, RegExp, Handler][] = [
       if (!enrollment) throw new MockHttpError(404, { detail: "Enrollment not found." });
       enrollment.status = action === "approve" ? "approved" : "rejected";
 
-      // Approving opens a gradebook row, the way a post_save signal would.
+      // approving opens a gradebook row, like a post_save signal would
       if (action === "approve" && !db.grades.some((g) => g.enrollment === enrollment.id)) {
         db.grades.push({
           id: makeId(),
@@ -569,7 +566,7 @@ const routes: [string, RegExp, Handler][] = [
     },
   ],
 
-  // Grades ----------------------------------------------------------------
+  // --- grades ---
   [
     "get",
     /^grades\/my-results\/$/,
@@ -651,7 +648,7 @@ const routes: [string, RegExp, Handler][] = [
     },
   ],
 
-  // Finance ---------------------------------------------------------------
+  // --- finance ---
   [
     "get",
     /^finance\/my-invoices\/$/,
@@ -711,8 +708,8 @@ const routes: [string, RegExp, Handler][] = [
       if (query.invoice) {
         return db.payments.filter((payment) => payment.invoice === Number(query.invoice));
       }
-      // The real endpoint scopes an unfiltered list by the token: a student sees
-      // only their own payments, an admin sees all. The mock has one student.
+      // the real endpoint scopes this by the token - student sees their own,
+      // admin sees everything. we only have the one student here.
       const mine = new Set(
         db.invoices
           .filter((invoice) => invoice.student === CURRENT_STUDENT_ID)
@@ -762,7 +759,7 @@ const routes: [string, RegExp, Handler][] = [
         .filter((invoice) => invoice.student === CURRENT_STUDENT_ID)
         .map(invoiceStatus)
         .filter((invoice) => invoice.balance > 0)
-        // Oldest due date first, so the most overdue charge clears first.
+        // oldest due date first so the most overdue one clears first
         .sort((a, b) => a.due_date.localeCompare(b.due_date));
 
       const owed = outstanding.reduce((sum, invoice) => sum + invoice.balance, 0);
@@ -805,7 +802,7 @@ const routes: [string, RegExp, Handler][] = [
     },
   ],
 
-  // Dashboards ------------------------------------------------------------
+  // --- dashboards ---
   [
     "get",
     /^dashboard\/admin\/$/,
@@ -866,9 +863,7 @@ const routes: [string, RegExp, Handler][] = [
   ],
 ];
 
-/**
- * Installed as `api.defaults.adapter`, so it sees every request the app makes.
- */
+// goes in as api.defaults.adapter, so it sees every request the app makes
 export const mockAdapter: AxiosAdapter = async (config) => {
   await delay();
 
@@ -904,7 +899,7 @@ export const mockAdapter: AxiosAdapter = async (config) => {
   }
 };
 
-/** Exposed for the dev banner so the UI can say which credentials work. */
+// the dev banner reads this so it can tell you which logins work
 export const mockCredentials = fixtures.users.map(({ email, password, role }) => ({
   email,
   password,

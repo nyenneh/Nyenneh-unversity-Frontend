@@ -9,13 +9,11 @@ import {
 import { queryKeys } from "./queryKeys";
 import { useMutationWithToast } from "./useMutationWithToast";
 
-/**
- * The admin's view of lecturer accounts. Every mutation invalidates
- * `queryKeys.lecturers.all`, which the course and allocation pickers read, so a
- * lecturer created here is selectable on the allocations page straight away.
- * Creating also invalidates the allocation and dashboard keys, because the same
- * request may have handed the lecturer a teaching load.
- */
+// The admin's view of lecturer accounts. Everything here invalidates
+// queryKeys.lecturers.all, which the course and allocation pickers read from,
+// so a lecturer added here shows up on the allocations page immediately.
+// Create also clears the allocation and dashboard keys since that same request
+// may have given them a teaching load.
 export function useLecturerAccounts(filters: LecturerAccountFilters = {}) {
   return useQuery({
     queryKey: queryKeys.lecturers.list(filters),
@@ -45,8 +43,8 @@ export function useSaveLecturer(id?: number) {
               created.courses_allocated === 1 ? "" : "s"
             }`
           : "";
-      // The server reports whether the password email actually left; saying
-      // "emailed" when it bounced would send the admin looking in the wrong place.
+      // the server tells us whether the email actually went out. saying
+      // "emailed" when it bounced just sends the admin hunting in the wrong place.
       return created.temporary_password_sent
         ? `Lecturer added${load}. A temporary password was emailed to ${created.email}.`
         : `Lecturer added${load}, but the password email failed. Use “Resend password” to try again.`;

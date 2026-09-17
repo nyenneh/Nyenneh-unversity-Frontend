@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 import { getErrorMessage } from "@/services/api";
 import type { LecturerAccount } from "@/types";
 
-/** Mirrors User.Title on the backend. */
+// mirrors User.Title on the backend
 const TITLES = [
   { value: "", label: "None" },
   { value: "MR", label: "Mr" },
@@ -38,15 +38,13 @@ const TITLES = [
   { value: "PROF", label: "Prof" },
 ];
 
-/**
- * Adding a lecturer creates a portal account and their teaching load together,
- * the way admitting a student creates an account and an academic record.
- *
- * The name is one field, which the server splits — the account model keeps the
- * parts, but nobody types a name in three boxes. Email is separate from the name
- * because it is the sign-in address and where the temporary password is sent,
- * which is also why it cannot be changed afterwards.
- */
+// Adding a lecturer makes the portal account and the teaching load together,
+// same as admitting a student makes an account and an academic record.
+//
+// One name field, split by the server. The account model stores the parts but
+// nobody wants to type a name into three boxes. Email is on its own because it
+// is the sign-in address and where the temp password goes, which is also why
+// it can't be changed later.
 const schema = z.object({
   full_name: z
     .string()
@@ -80,8 +78,8 @@ export default function LecturersPage() {
 
   const semester = useCurrentSemester();
   const courses = useCourses();
-  // Every allocation for the semester, so each row can show what that lecturer
-  // already teaches without a request per lecturer.
+  // pull every allocation for the semester in one go, so each row can show
+  // what that lecturer teaches without a request per row
   const allocations = useAllocations(
     semester.data?.id ? { semester: semester.data.id } : {},
   );
@@ -107,8 +105,8 @@ export default function LecturersPage() {
   const activate = useActivateLecturer();
   const resendPassword = useResendLecturerPassword();
 
-  // Only courses taught in the current half of the year can be allocated to it.
-  // The server enforces this too; offering the rest would just invite a 400.
+  // only this half of the year. server checks it too, offering the rest would
+  // just invite a 400.
   const assignable = (courses.data ?? []).filter(
     (course) =>
       course.is_active &&
@@ -138,7 +136,7 @@ export default function LecturersPage() {
     reset(blank);
   }, [formOpen, editing, reset]);
 
-  /** Opens the form on a lecturer, or on a blank one when passed null. */
+  // pass null for a blank form
   const openForm = (lecturer: LecturerAccount | null) => {
     setEditing(lecturer);
     setPicked(new Set());
@@ -156,9 +154,8 @@ export default function LecturersPage() {
   const onSubmit = handleSubmit((values) => {
     const parsed = schema.parse(values);
     save.mutate(
-      // On an edit the service sends only the personal details: an existing
-      // lecturer's load is changed on the allocations screen, which can also
-      // withdraw a course.
+      // on an edit the service only sends the personal details - you change an
+      // existing load on the allocations screen, which can take courses away too
       editing ? parsed : { ...parsed, courses: [...picked] },
       { onSuccess: () => setFormOpen(false) },
     );
@@ -279,10 +276,10 @@ export default function LecturersPage() {
                           )}
                         </Td>
                         <Td>
-                          {/* Until the emailed password is replaced, the account
-                              cannot reach any portal screen — worth surfacing, as
-                              it is the usual reason a new lecturer reports being
-                              locked out. */}
+                          {/* they can't reach any portal screen until they
+                              replace the emailed password. worth showing -
+                              it's the usual reason a new lecturer says they
+                              are locked out. */}
                           {lecturer.must_change_password ? (
                             <Badge tone="warning">Password not set</Badge>
                           ) : lecturer.last_login ? (
@@ -401,8 +398,8 @@ export default function LecturersPage() {
               type="email"
               placeholder="lecturer@nyenneh.edu"
               autoComplete="email"
-              // The accounts API refuses a changed email, so the field is locked
-              // rather than silently ignoring what was typed.
+              // the accounts API refuses a changed email, so lock the field
+              // instead of quietly throwing away whatever they typed
               disabled={Boolean(editing)}
               hint={
                 editing
@@ -421,9 +418,8 @@ export default function LecturersPage() {
             />
           </div>
 
-          {/* Courses are set here only when creating. Editing a load means being
-              able to take a course away as well, which the allocations screen
-              already does properly. */}
+          {/* only on create. editing a load means being able to remove a
+              course too, and the allocations screen already does that. */}
           {editing ? null : (
             <fieldset>
               <legend className="mb-2 flex w-full items-center justify-between border-b border-ink-200 pb-2 text-xs font-semibold uppercase tracking-wide text-ink-500">

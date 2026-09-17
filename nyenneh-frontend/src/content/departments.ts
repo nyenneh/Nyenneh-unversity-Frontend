@@ -8,33 +8,23 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-/**
- * The six departments the university admits into, as the public site presents
- * them.
- *
- * Placeholder heads and intake figures — swap for the registry's published
- * list. The codes are the ones the portal uses on course registrations, so
- * they have to match what the backend returns for a programme.
- */
+// The six departments the university admits into, as the public site shows
+// them. Heads and intake figures are placeholders for now - swap them for the
+// registry's published list. The codes are real though: they are what the
+// portal uses on course registrations, so they have to match what the backend
+// sends back for a programme.
 
 export interface Department {
-  /** Slug, and the key the slideshow tracks slides by. */
-  id: string;
-  /** Registration code, e.g. "CSC 401". Shown on the slide as a chip. */
-  code: string;
+  id: string; // slug, and what the slideshow keys slides by
+  code: string; // registration code e.g. "CSC 401", shown as a chip
   name: string;
-  /** The faculty the department sits under. */
   faculty: string;
-  /** Head of department — the post, not the academic title. */
-  head: string;
-  /** The degree awarded, shown under the name. */
+  head: string; // the post, not the academic title
   award: string;
-  /** Full-time years to graduation. */
   duration: string;
-  /** One paragraph: what the department actually teaches, not a mission statement. */
+  // one paragraph on what they actually teach - not a mission statement
   blurb: string;
-  /** Three representative courses. Kept to three so every slide is the same height. */
-  courses: string[];
+  courses: string[]; // three, so every slide comes out the same height
   icon: LucideIcon;
 }
 
@@ -123,5 +113,5 @@ export const departments: Department[] = [
   },
 ];
 
-/** Distinct faculties across the departments above, for the stats band. */
+// distinct faculties, for the stats band
 export const facultyCount = new Set(departments.map((d) => d.faculty)).size;

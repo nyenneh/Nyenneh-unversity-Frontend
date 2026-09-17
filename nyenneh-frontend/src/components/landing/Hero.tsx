@@ -3,39 +3,77 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { educationQuotes } from "@/content/quotes";
 import { heroSlides } from "@/content/heroSlides";
+import { useTypewriter } from "@/hooks/useTypewriter";
 import { cn } from "@/lib/utils";
 
-// The dialog drags in react-hook-form and zod for a form most visitors never
-// open, so it loads on demand.
+// lazy: this pulls in react-hook-form and zod for a form most visitors never open
 const ApplyModal = lazy(() =>
   import("@/components/landing/ApplyModal").then((module) => ({ default: module.ApplyModal })),
 );
 
-/** Warm the chunk while the pointer is still travelling to the button. */
+// start fetching it while the mouse is still moving towards the button
 function preloadApplyModal() {
   void import("@/components/landing/ApplyModal");
 }
 
-/** How long a photograph holds the frame before the next one fades up. */
 const SLIDE_MS = 7000;
 
-/** Read once at mount: there is no need to react to a mid-visit change. */
 function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
+
+// module scope: useTypewriter needs the same array every render
+const quoteLines = educationQuotes.map((quote) => quote.text);
+
+// One quote at a time, typed out, held, cleared, next. The animated copy is
+// hidden from assistive tech - a half-typed sentence read out character by
+// character is noise - and the whole quote sits next to it for screen readers.
+function TypedQuote() {
+  const { index, text, full, done } = useTypewriter(quoteLines);
+  const author = educationQuotes[index].author;
+
+  return (
+    <figure className="mt-10 max-w-xl border-l-2 border-brand-400/60 pl-5">
+      {/* fixed height, or the photo credit below jumps every time the quote
+          wraps onto another line */}
+      <blockquote className="min-h-24 sm:min-h-16">
+        <p aria-hidden className="text-base/7 italic text-navy-100 sm:text-lg/8">
+          &ldquo;{text}&rdquo;
+          <span
+            aria-hidden
+            className="ml-1 inline-block h-[1em] w-0.5 translate-y-[0.15em] animate-caret bg-brand-400 motion-reduce:hidden"
+          />
+        </p>
+        <p className="sr-only">
+          &ldquo;{full}&rdquo; — {author}
+        </p>
+      </blockquote>
+
+      {/* only once the sentence is whole, so nobody is credited with half of it */}
+      <figcaption
+        aria-hidden
+        className={cn(
+          "mt-2 text-sm font-medium text-brand-300 transition-opacity duration-500",
+          done ? "opacity-100" : "opacity-0",
+        )}
+      >
+        — {author}
+      </figcaption>
+    </figure>
+  );
 }
 
 export function Hero() {
   const [applyOpen, setApplyOpen] = useState(false);
   const [active, setActive] = useState(0);
 
-  // Anyone who has asked their system not to animate keeps the first frame and
-  // never gets the rotation — a background that moves on its own is exactly
-  // what that setting is about.
+  // reduced motion = keep the first photo, no rotation. read once at mount
   const [still] = useState(prefersReducedMotion);
 
-  // The later photographs are held back until the browser is idle, so they do
-  // not compete for bandwidth with the first one, which is the page's LCP.
+  // hold the other photos back until the browser is idle so they don't fight
+  // the first one for bandwidth (that one is the LCP)
   const [restLoaded, setRestLoaded] = useState(false);
 
   useEffect(() => {
@@ -47,8 +85,7 @@ export function Hero() {
       return () => window.cancelIdleCallback?.(handle);
     }
 
-    // Safari has no requestIdleCallback; a timer past the usual first paint
-    // does the same job well enough.
+    // safari still has no requestIdleCallback
     const timer = window.setTimeout(() => setRestLoaded(true), 1500);
     return () => window.clearTimeout(timer);
   }, [still]);
@@ -60,22 +97,16 @@ export function Hero() {
       SLIDE_MS,
     );
     return () => window.clearInterval(timer);
-    // `active` is a dependency so that picking a photograph by hand restarts
-    // the countdown rather than cutting the new one short.
+    // `active` is in the deps on purpose so clicking a dot restarts the timer
   }, [still, active]);
 
   const slide = heroSlides[active];
 
   return (
     <div className="relative overflow-hidden bg-navy-950">
-      {/* Liberia, full bleed behind the headline: the coast, the capital and
-          the interior, one fading into the next. Decorative — the message is
-          carried by the heading — so the alt text stays empty and the place
-          names live in the caption under the copy instead.
-
-          The first frame is deliberately eager: it is the largest thing above
-          the fold, so it is the page's LCP element. Making it lazy would delay
-          first paint rather than help it. */}
+      {/* Campus buildings behind the headline. Decorative, so alt is empty -
+          the captions are below. First one is eager on purpose, it's the LCP
+          element. */}
       <div aria-hidden className="absolute inset-0">
         {heroSlides.map((item, index) => {
           const first = index === 0;
@@ -90,8 +121,8 @@ export function Hero() {
               fetchPriority={first ? "high" : "low"}
               decoding="async"
               className={cn(
-                // A slow drift on every frame, not just the visible one: a
-                // photograph that stopped moving as it faded out would snap.
+                // every frame pans, not just the visible one, otherwise a photo
+                // that stopped moving while fading out snaps
                 "absolute inset-0 size-full animate-hero-pan object-cover object-center",
                 "transition-opacity duration-1000 ease-linear motion-reduce:animate-none motion-reduce:transition-none",
                 index === active ? "opacity-100" : "opacity-0",
@@ -101,16 +132,15 @@ export function Hero() {
         })}
       </div>
 
-      {/* Scrims. The first darkens the whole frame so the copy stays legible on
-          phones, where text runs the full width; the second is the horizontal
-          fade that keeps the left column near-solid navy on wide screens. */}
+      {/* two overlays: one darkens everything so the copy reads on phones, the
+          other fades left to right so the text column stays navy on desktop */}
       <div aria-hidden className="absolute inset-0 bg-navy-950/45 lg:bg-navy-950/20" />
       <div
         aria-hidden
         className="absolute inset-0 bg-[linear-gradient(100deg,#0d1b3e_0%,rgba(13,27,62,0.9)_32%,rgba(13,27,62,0.6)_58%,rgba(13,27,62,0.2)_100%)]"
       />
 
-      {/* Gold wash and faint grid — the same brand treatment as the login panel. */}
+      {/* gold wash + faint grid, same as the login panel */}
       <div
         aria-hidden
         className="absolute inset-0 bg-[radial-gradient(70%_55%_at_15%_0%,rgba(210,154,21,0.22),transparent)]"
@@ -166,12 +196,12 @@ export function Hero() {
           <p className="mt-6 text-sm text-navy-200">
             Six departments · Semester-based credit system · Results published online
           </p>
+
+          <TypedQuote />
         </div>
 
-        {/* Where the photograph was taken, and who took it. The credit is a
-            licence condition, so it stays visible at every width rather than
-            being tucked away on large screens. The dots are a shortcut for
-            anyone who does not want to wait out the rotation. */}
+        {/* Photo credit. The licence requires it, so it shows at every width,
+            we can't hide it on mobile. */}
         <div className="mt-14 flex flex-wrap items-center gap-x-4 gap-y-3 sm:mt-20">
           <div className="flex items-center gap-2">
             {heroSlides.map((item, index) => (

@@ -10,7 +10,7 @@ import { TableWrap, Td, Th, Tr } from "@/components/ui/Table";
 import { useLecturerDashboard } from "@/hooks/useLecturer";
 import { getErrorMessage } from "@/services/api";
 
-/** Attendance reads green above 75%, amber above 50%, red below. */
+// green above 75, amber above 50, red below
 function attendanceTone(rate: number) {
   if (rate >= 75) return "success" as const;
   if (rate >= 50) return "warning" as const;

@@ -1,11 +1,9 @@
-/**
- * The questions students actually arrive with: how to apply, how to register,
- * and where to ask when the answer is not here.
- *
- * Answers describe what the portal really does — registration is a request the
- * registry approves, results appear only once published, an unpaid balance can
- * block a registration — so the site and the product never disagree.
- */
+// The questions students actually turn up with: how to apply, how to register,
+// and who to ask when the answer isn't here.
+//
+// Keep the answers matching what the portal really does - registration is a
+// request the registry approves, results only appear once published, an unpaid
+// balance can block a registration. The site and the product shouldn't disagree.
 
 export const faqCategories = [
   "Admissions",
@@ -22,14 +20,12 @@ export interface Faq {
   id: string;
   category: FaqCategory;
   question: string;
-  /** One entry per paragraph. */
-  answer: string[];
-  /** The office that settles this, matched against `offices` in content/contact. */
-  office?: string;
+  answer: string[]; // one entry per paragraph
+  office?: string; // matched against `offices` in content/contact
 }
 
 export const faqs: Faq[] = [
-  /* -- admissions --------------------------------------------------------- */
+  /* --- admissions --- */
   {
     id: "how-to-apply",
     category: "Admissions",
@@ -81,7 +77,7 @@ export const faqs: Faq[] = [
     office: "admissions",
   },
 
-  /* -- registration ------------------------------------------------------- */
+  /* --- registration --- */
   {
     id: "how-to-register",
     category: "Registration",
@@ -153,7 +149,7 @@ export const faqs: Faq[] = [
     office: "registry",
   },
 
-  /* -- fees --------------------------------------------------------------- */
+  /* --- fees --- */
   {
     id: "how-much-is-tuition",
     category: "Fees and payments",
@@ -205,7 +201,7 @@ export const faqs: Faq[] = [
     office: "bursary",
   },
 
-  /* -- results ------------------------------------------------------------ */
+  /* --- results --- */
   {
     id: "when-are-results-published",
     category: "Results and transcripts",
@@ -247,7 +243,7 @@ export const faqs: Faq[] = [
     office: "registry",
   },
 
-  /* -- portal ------------------------------------------------------------- */
+  /* --- portal --- */
   {
     id: "first-sign-in",
     category: "Portal help",
@@ -289,7 +285,7 @@ export const faqs: Faq[] = [
     office: "helpdesk",
   },
 
-  /* -- campus ------------------------------------------------------------- */
+  /* --- campus --- */
   {
     id: "accommodation",
     category: "Campus life",
@@ -312,13 +308,11 @@ export const faqs: Faq[] = [
   },
 ];
 
-/** The two answers most visitors come for, shown ahead of the full list. */
+// the two most people are here for, pinned above the full list
 export const featuredFaqIds = ["how-to-apply", "how-to-register"];
 
-/**
- * Registration end to end, for a student who has already been admitted. Both
- * the landing section and the questions page render this.
- */
+// registration start to finish, for someone already admitted. rendered by both
+// the landing section and the questions page.
 export const registrationSteps = [
   {
     title: "Settle your account",

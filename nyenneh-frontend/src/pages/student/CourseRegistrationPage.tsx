@@ -34,8 +34,8 @@ export default function CourseRegistrationPage() {
     semester: semester || undefined,
   });
   const registrations = useEnrollments();
-  // Registration is filed against the semester the registry has marked current;
-  // without one there is nothing to register into.
+  // everything is filed against whichever semester the registry marked current.
+  // no current semester, nothing to register into.
   const currentSemester = useCurrentSemester();
 
   const enroll = useEnroll();
@@ -43,7 +43,7 @@ export default function CourseRegistrationPage() {
   const [dropping, setDropping] = useState<Enrollment | null>(null);
   const [enrollingId, setEnrollingId] = useState<number | null>(null);
 
-  /** Course id -> the student's registration, so a card knows its own state. */
+  // course id -> their registration, so each card knows its own state
   const registeredByCourse = useMemo(() => {
     const map = new Map<number, Enrollment>();
     for (const enrollment of registrations.data ?? []) {
@@ -52,7 +52,7 @@ export default function CourseRegistrationPage() {
     return map;
   }, [registrations.data]);
 
-  // A request awaiting approval already counts against the semester load.
+  // a pending request already counts against the semester load
   const totalUnits = (registrations.data ?? [])
     .filter(
       (enrollment) =>

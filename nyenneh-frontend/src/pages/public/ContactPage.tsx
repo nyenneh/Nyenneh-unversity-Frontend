@@ -10,7 +10,6 @@ import type { Office } from "@/content/contact";
 import { useReveal } from "@/hooks/useReveal";
 import { cn } from "@/lib/utils";
 
-/** One office card, easing in as the grid is scrolled to. */
 function OfficeCard({ office, delay }: { office: Office; delay: number }) {
   const {
     ref: revealRef,
@@ -100,7 +99,7 @@ export default function ContactPage() {
         </div>
       </PageHero>
 
-      {/* One card per office, with what it actually decides. */}
+      {/* one card per office, saying what it actually decides */}
       <Section id="offices" aria-labelledby="offices-heading">
         <Reveal>
           <SectionHeading
@@ -120,7 +119,7 @@ export default function ContactPage() {
         <p className="mt-8 text-sm/6 text-ink-500">{campus.closedNote}</p>
       </Section>
 
-      {/* Write to us, and where to find us. */}
+      {/* write to us, and where to find us */}
       <Section id="write" className="bg-ink-50" aria-labelledby="write-heading">
         <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
           <div>

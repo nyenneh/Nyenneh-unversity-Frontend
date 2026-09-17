@@ -27,8 +27,8 @@ export default function AllocationsPage() {
   const assign = useAssignCourses();
   const removeAllocation = useRemoveAllocation();
 
-  // Courses ticked for this lecturer, seeded from what they already hold so
-  // re-submitting an unchanged load is a no-op rather than a duplicate.
+  // seeded from what they already hold, so re-submitting an untouched load
+  // does nothing instead of creating duplicates
   const held = useMemo(
     () => new Set((allocations.data ?? []).map((row) => row.course)),
     [allocations.data],
@@ -41,8 +41,8 @@ export default function AllocationsPage() {
     setPicked(new Set(held));
   }
 
-  // Only courses taught in the current half of the year can be allocated to it;
-  // the server enforces this too, but offering them would just invite a 400.
+  // only this half of the year can be allocated. the server checks this too,
+  // but offering the rest just invites a 400.
   const assignable = (courses.data ?? []).filter(
     (course) =>
       course.is_active &&

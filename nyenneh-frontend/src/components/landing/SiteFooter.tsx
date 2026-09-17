@@ -4,11 +4,9 @@ import { Link } from "react-router-dom";
 import { Logo } from "@/components/shared/Logo";
 import { campus } from "@/content/contact";
 
-/**
- * Router links throughout, because the footer now points at public pages as
- * well as at sections of the landing page — "/#campus" has to work from
- * /contact, not only from "/".
- */
+// Router links all through here, because the footer points at real pages as
+// well as sections of the landing page - "/#campus" has to work from /contact
+// and not just from "/".
 const columns = [
   {
     heading: "Academics",
@@ -31,6 +29,7 @@ const columns = [
   {
     heading: "About",
     links: [
+      { label: "The university", to: "/#about" },
       { label: "Admissions", to: "/#admissions" },
       { label: "Leadership", to: "/leadership" },
       { label: "Campus life", to: "/#campus" },

@@ -1,18 +1,10 @@
-/**
- * Translation between the Django REST payloads and the portal's domain model.
- *
- * The two vocabularies differ in three ways, and every difference is resolved
- * here so no page or hook ever sees a raw API field:
- *
- *   - names      `phone_number` -> `phone`
- *   - enums      `"ACTIVE"` -> `"active"`, `semester_number: 1` -> `"first"`
- *   - numbers    DRF renders DecimalField as a JSON *string* ("45000.00"), and
- *                the UI does arithmetic on these, so they are coerced on the
- *                way in.
- *
- * Keeping this in one module means a server-side rename is a change here rather
- * than a change in fourteen components.
- */
+// Maps the Django REST payloads onto our own types, so no page or hook ever
+// sees a raw API field. Three things keep needing fixing:
+//   names    phone_number -> phone
+//   enums    "ACTIVE" -> "active", semester_number: 1 -> "first"
+//   numbers  DRF serialises DecimalField as a string ("45000.00") and we do
+//            arithmetic on these, so coerce on the way in
+// Doing it all here means a rename on the server is one change, not fourteen.
 
 import type {
   AcademicSession,
@@ -48,18 +40,16 @@ import type {
   Weekday,
 } from "@/types";
 
-/* -------------------------------------------------------------------------- */
-/* primitives                                                                  */
-/* -------------------------------------------------------------------------- */
+/* ---------- primitives ---------- */
 
-/** DRF decimals arrive as strings; `null` and `""` both mean "not set". */
+// DRF decimals come through as strings. null and "" both mean not set.
 export function num(value: unknown): number {
   if (value === null || value === undefined || value === "") return 0;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-/** Like `num`, but preserves "no score recorded" as null rather than zero. */
+// same as num but keeps "no score recorded" as null instead of 0
 function nullableNum(value: unknown): number | null {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(value);
@@ -70,15 +60,13 @@ function str(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
-/** Empty strings are how Django stores "blank"; the UI wants an explicit null. */
+// django stores blank as "", we want null
 function blankToNull(value: unknown): string | null {
   const text = str(value).trim();
   return text === "" ? null : text;
 }
 
-/* -------------------------------------------------------------------------- */
-/* enums                                                                       */
-/* -------------------------------------------------------------------------- */
+/* ---------- enums ---------- */
 
 export const toSemester = (n: unknown): Semester =>
   Number(n) === 2 ? "second" : "first";
@@ -107,7 +95,7 @@ const ENROLLMENT_STATUSES: Record<string, EnrollmentStatus> = {
   DROPPED: "dropped",
 };
 
-/** The API numbers weekdays from Monday; the UI names them. */
+// the API numbers weekdays from monday, we use names
 const WEEKDAYS: Weekday[] = [
   "monday",
   "tuesday",
@@ -145,7 +133,7 @@ const PAYMENT_STATUSES: Record<string, PaymentStatus> = {
   REVERSED: "reversed",
 };
 
-/** Invert a code table so the UI's vocabulary can be sent back to the server. */
+// flip a code table round so we can send our own words back to the server
 function invert<T extends string>(table: Record<string, T>): Record<T, string> {
   return Object.fromEntries(
     Object.entries(table).map(([code, value]) => [value, code]),
@@ -165,9 +153,7 @@ export const fromStudentStatus = (status: StudentStatus): string =>
 export const fromPaymentMethod = (method: PaymentMethod): string =>
   PAYMENT_METHOD_CODES[method] ?? "BANK";
 
-/* -------------------------------------------------------------------------- */
-/* accounts                                                                    */
-/* -------------------------------------------------------------------------- */
+/* ---------- accounts ---------- */
 
 export interface ApiUser {
   id: number;
@@ -178,25 +164,21 @@ export interface ApiUser {
   must_change_password: boolean;
 }
 
-/**
- * The account endpoint knows nothing about roll numbers — that lives
- * on the student record — so callers that have one pass it in.
- */
+// the account endpoint has no roll number (that is on the student record), so
+// callers that already have one pass it in
 export function toUser(api: ApiUser, rollNumber?: string | null): User {
   return {
     id: api.id,
     email: api.email,
     full_name: api.full_name,
-    // A Django superuser may carry any role; staff access is what matters here.
+    // a django superuser can have any role set, is_staff is what counts
     role: api.is_staff ? "admin" : (ROLES[api.role] ?? "student"),
     roll_number: rollNumber ?? null,
     must_change_password: Boolean(api.must_change_password),
   };
 }
 
-/* -------------------------------------------------------------------------- */
-/* academic                                                                    */
-/* -------------------------------------------------------------------------- */
+/* ---------- academic ---------- */
 
 export function toFaculty(api: Record<string, unknown>): Faculty {
   return { id: num(api.id), name: str(api.name), code: str(api.code) };
@@ -247,7 +229,7 @@ export function toSemesterTerm(api: Record<string, unknown>): SemesterTerm {
   };
 }
 
-/** `null` and `undefined` both mean "no seat limit"; 0 is a real answer. */
+// null/undefined mean no seat limit. 0 is a real answer, don't lump them in.
 function nullableCount(value: unknown): number | null {
   return value === null || value === undefined ? null : num(value);
 }
@@ -278,7 +260,7 @@ export function toClassSlot(api: Record<string, unknown>): ClassSlot {
     course_title: str(api.course_title),
     semester: toSemester(api.semester_number),
     day: toWeekday(api.day),
-    // The API sends "10:00:00"; the UI works in "HH:MM".
+    // API sends "10:00:00", we only want "HH:MM"
     start_time: str(api.start_time).slice(0, 5),
     end_time: str(api.end_time).slice(0, 5),
     venue: str(api.venue),
@@ -306,7 +288,7 @@ export function toLecturerAccount(api: Record<string, unknown>): LecturerAccount
     middle_name: str(api.middle_name),
     last_name: str(api.last_name),
     phone_number: str(api.phone_number),
-    // A missing flag must not read as "deactivated", so default to active.
+    // a missing flag shouldn't read as deactivated
     is_active: api.is_active === undefined ? true : Boolean(api.is_active),
     must_change_password: Boolean(api.must_change_password),
     last_login: blankToNull(api.last_login),
@@ -314,9 +296,7 @@ export function toLecturerAccount(api: Record<string, unknown>): LecturerAccount
   };
 }
 
-/* -------------------------------------------------------------------------- */
-/* students                                                                    */
-/* -------------------------------------------------------------------------- */
+/* ---------- students ---------- */
 
 export function toStudent(api: Record<string, unknown>): Student {
   return {
@@ -336,7 +316,7 @@ export function toStudent(api: Record<string, unknown>): Student {
     level: num(api.level),
     programme: num(api.programme),
     programme_name: str(api.programme_name),
-    // The roster's list serializer is trimmed and omits the department.
+    // the roster list serializer is trimmed and leaves this out
     department_name: str(api.department_name),
     entry_session: num(api.entry_session),
     entry_session_name: str(api.entry_session_name),
@@ -367,9 +347,7 @@ export function toEnrollment(api: Record<string, unknown>): Enrollment {
   };
 }
 
-/* -------------------------------------------------------------------------- */
-/* grades                                                                      */
-/* -------------------------------------------------------------------------- */
+/* ---------- grades ---------- */
 
 export function toGrade(api: Record<string, unknown>): Grade {
   return {
@@ -393,14 +371,9 @@ export function toGrade(api: Record<string, unknown>): Grade {
   };
 }
 
-/* -------------------------------------------------------------------------- */
-/* finance                                                                     */
-/* -------------------------------------------------------------------------- */
+/* ---------- finance ---------- */
 
-/**
- * An unsettled invoice past its due date reads as "overdue" in the UI, which is
- * a presentation state rather than one the server stores.
- */
+// "overdue" is ours, not the server's: an unpaid invoice past its due date
 function invoiceStatus(api: Record<string, unknown>): InvoiceStatus {
   const stored = INVOICE_STATUSES[str(api.status)] ?? "pending";
   if (api.is_overdue && stored !== "paid" && stored !== "cancelled") {
@@ -418,15 +391,15 @@ export function toInvoice(api: Record<string, unknown>): Invoice {
     student: num(api.student),
     student_name: str(api.student_name),
     roll_number: str(api.roll_number),
-    // Invoices are itemised on the server; the note is the human label, and the
-    // session stands in when the bursary left it blank.
+    // the note is the readable label. fall back to the session when the
+    // bursary left it empty.
     description: blankToNull(api.note) ?? `Fees — ${str(api.session_name)}`,
     session: str(api.session_name),
     semester: toSemester(api.semester_number),
     amount: total,
     amount_paid: paid,
-    // `balance` is a serializer field, but deriving it here keeps the three
-    // figures internally consistent even on a trimmed payload.
+    // the serializer sends balance too, but working it out here keeps the
+    // three numbers agreeing even on a trimmed payload
     balance: total - paid,
     status: invoiceStatus(api),
     due_date: blankToNull(api.due_date),
@@ -444,15 +417,12 @@ export function toPayment(api: Record<string, unknown>): Payment {
     method: PAYMENT_METHODS[str(api.method)] ?? "bank_transfer",
     status: PAYMENT_STATUSES[str(api.status)] ?? "pending",
     reference: str(api.reference),
-    // An unconfirmed payment has no confirmation timestamp; the date it was
-    // banked is the closest honest answer.
+    // an unconfirmed payment has no confirmed_at yet, so fall back to paid_on
     paid_at: str(api.confirmed_at) || str(api.paid_on),
   };
 }
 
-/* -------------------------------------------------------------------------- */
-/* lecturer                                                                    */
-/* -------------------------------------------------------------------------- */
+/* ---------- lecturer ---------- */
 
 const ATTENDANCE_STATUSES: Record<string, AttendanceStatus> = {
   PRESENT: "present",
@@ -467,7 +437,7 @@ export const fromAttendanceStatus = (status: AttendanceStatus): string =>
   ATTENDANCE_STATUS_CODES[status] ?? "PRESENT";
 
 export function toCourseAllocation(api: Record<string, unknown>): CourseAllocation {
-  // The list serializer nests the course; the counts sit on the row itself.
+  // the list serializer nests the course, but the counts are on the row
   const course = (api.course_detail ?? {}) as Record<string, unknown>;
   return {
     id: num(api.id),
@@ -572,7 +542,7 @@ export function toQuizScore(api: Record<string, unknown>): QuizScore {
   };
 }
 
-/** Null rather than zeroes: a student who has sat nothing has no suggestion. */
+// null rather than zeroes - someone who has sat nothing gets no suggestion
 export function toCaSuggestion(api: unknown): CaSuggestion | null {
   if (!api || typeof api !== "object") return null;
   const row = api as Record<string, unknown>;

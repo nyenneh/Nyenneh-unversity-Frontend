@@ -3,9 +3,9 @@ import { Section, SectionHeading } from "@/components/landing/Section";
 import { Reveal } from "@/components/shared/Reveal";
 import { departments, facultyCount } from "@/content/departments";
 
-// Placeholder institutional figures — swap for the registry's published numbers.
-// The faculty and department counts are derived so they cannot drift from the
-// slideshow below them.
+// TODO: swap these for the registry's published numbers.
+// the faculty and department counts are derived so at least those can't drift
+// away from the slideshow below
 const stats = [
   { value: String(facultyCount), label: "Faculties" },
   { value: String(departments.length), label: "Departments" },
@@ -16,9 +16,9 @@ const stats = [
 export function Academics() {
   return (
     <>
-      {/* Stats sit on gold, so the type is navy — the house rule for gold fills. */}
+      {/* navy type on gold, same as everywhere else */}
       <div className="bg-brand-500">
-        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <dl className="grid grid-cols-2 gap-8 lg:grid-cols-4">
             {stats.map((stat, index) => (
               <Reveal key={stat.label} delay={index * 70}>
@@ -32,7 +32,14 @@ export function Academics() {
         </div>
       </div>
 
-      <Section id="academics" aria-labelledby="academics-heading">
+      {/* the widest thing on the page - the stats band and the slideshow are
+          one block, and the slideshow needs the room */}
+      <Section
+        id="academics"
+        width="wide"
+        className="py-24 sm:py-32"
+        aria-labelledby="academics-heading"
+      >
         <Reveal>
           <SectionHeading
             id="academics-heading"
@@ -42,7 +49,7 @@ export function Academics() {
           />
         </Reveal>
 
-        <Reveal className="mt-12">
+        <Reveal className="mt-14">
           <DepartmentSlideshow />
         </Reveal>
       </Section>

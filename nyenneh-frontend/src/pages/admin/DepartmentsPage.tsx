@@ -28,8 +28,7 @@ const schema = z.object({
     .min(2, "Enter a short code")
     .max(6, "Use at most 6 characters")
     .transform((value) => value.toUpperCase()),
-  // Departments hang off a faculty on the server, so this is a real relation
-  // rather than a name typed in by hand.
+  // a real relation on the server, not a name someone types in
   faculty: z.coerce.number().int().min(1, "Choose a faculty"),
   description: z.string(),
 });
@@ -55,7 +54,7 @@ export default function DepartmentsPage() {
     formState: { errors },
   } = useForm<DepartmentForm>({ resolver: zodResolver(schema), defaultValues: blank });
 
-  // Refill the form whenever the dialog opens for a different record.
+  // refill the form when the dialog opens on a different record
   useEffect(() => {
     if (!formOpen) return;
     reset(

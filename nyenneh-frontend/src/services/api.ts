@@ -23,7 +23,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-/** Callback the auth store registers so a dead session can clear app state. */
+// the auth store registers this so a dead session can clear the app state
 let onSessionExpired: (() => void) | null = null;
 export function setSessionExpiredHandler(handler: () => void) {
   onSessionExpired = handler;
@@ -31,15 +31,16 @@ export function setSessionExpiredHandler(handler: () => void) {
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retried?: boolean };
 
-// While one refresh is in flight, other 401s wait on the same promise instead of
-// firing a refresh call each.
+// if a refresh is already running, other 401s wait on the same promise instead
+// of each firing their own refresh call
 let refreshPromise: Promise<string> | null = null;
 
 async function refreshAccessToken(): Promise<string> {
   const refresh = tokenStorage.getRefresh();
   if (!refresh) throw new Error("No refresh token");
 
-  // A bare axios call, so a 401 here cannot re-enter this interceptor.
+  // plain axios, not our instance - otherwise a 401 here re-enters the
+  // interceptor and we loop
   const { data } = await axios.post<{ access: string }>(
     `${api.defaults.baseURL}${endpoints.auth.refresh}`,
     { refresh },
@@ -74,12 +75,9 @@ api.interceptors.response.use(
   },
 );
 
-/**
- * Turns a DRF error payload into a single sentence fit for a toast.
- *
- * DRF replies in several shapes: {"detail": "..."}, {"field": ["msg"]}, or a
- * bare string, so all three are handled here rather than at every call site.
- */
+// Turns a DRF error into one sentence we can put in a toast. DRF answers in a
+// few different shapes - {"detail": "..."}, {"field": ["msg"]}, or just a
+// string - so deal with all of them here instead of at every call site.
 export function getErrorMessage(error: unknown, fallback = "Something went wrong."): string {
   if (!axios.isAxiosError(error)) {
     return error instanceof Error ? error.message : fallback;
@@ -106,7 +104,7 @@ export function getErrorMessage(error: unknown, fallback = "Something went wrong
   return fallback;
 }
 
-/** Small helpers so services read as `get<Course[]>(...)` instead of axios noise. */
+// thin wrappers so the services read as get<Course[]>(...) and not axios noise
 export async function get<T>(url: string, config?: AxiosRequestConfig) {
   const { data } = await api.get<T>(url, config);
   return data;
@@ -126,10 +124,8 @@ export async function del(url: string, config?: AxiosRequestConfig) {
   await api.delete(url, config);
 }
 
-/**
- * DRF list endpoints are paginated when a page size is configured and plain
- * arrays when it is not; both shapes are accepted so the UI does not care.
- */
+// DRF list endpoints come back paginated if a page size is set and as a plain
+// array if not. Accept both so nothing upstream has to care.
 export function unwrapList<T>(payload: T[] | { results: T[] }): T[] {
   return Array.isArray(payload) ? payload : (payload?.results ?? []);
 }

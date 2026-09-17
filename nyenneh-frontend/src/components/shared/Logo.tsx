@@ -1,14 +1,10 @@
 import logoMark from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
 
-/**
- * The university seal, cropped to the crest. It keeps a white tile behind it
- * rather than sitting straight on the navy chrome — half the seal is navy and
- * would disappear otherwise.
- *
- * Every use so far sits next to the words "Nyenneh University", so the image
- * is decorative and stays out of the accessibility tree.
- */
+// The seal, cropped to the crest. Needs the white tile behind it - half the
+// seal is navy and vanishes against the navy chrome otherwise.
+// It always sits next to the words "Nyenneh University", so it is decorative
+// and stays out of the accessibility tree.
 export function Logo({ className }: { className?: string }) {
   return (
     <img

@@ -23,7 +23,7 @@ export default function LoginPage() {
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // Where the guard bounced the user from, so login can return them there.
+  // where the guard bounced them from, so we can send them back after login
   const from = (location.state as { from?: string } | null)?.from;
   const login = useLogin(from);
 
@@ -47,7 +47,7 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Brand panel — decorative, so it is hidden on small screens. */}
+      {/* decorative, so it goes away on small screens */}
       <div className="relative hidden bg-navy-950 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div
           aria-hidden
@@ -73,7 +73,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Form panel */}
+      {/* the actual form */}
       <div className="flex items-center justify-center px-4 py-12 sm:px-8">
         <div className="w-full max-w-sm">
           <div className="mb-8 flex items-center gap-3 lg:hidden">

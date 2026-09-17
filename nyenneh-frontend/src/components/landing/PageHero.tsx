@@ -1,10 +1,8 @@
 import type { ReactNode } from "react";
 
-/**
- * The navy band at the top of a public sub-page — the same treatment as the
- * landing hero, without the photograph, so leadership, questions and contact
- * read as parts of one site rather than three loose pages.
- */
+// The navy band at the top of the public sub-pages. Same treatment as the
+// landing hero minus the photo, so leadership/questions/contact read as one
+// site and not three separate pages.
 export function PageHero({
   eyebrow,
   title,
@@ -14,12 +12,11 @@ export function PageHero({
   eyebrow: string;
   title: string;
   description: string;
-  /** Optional actions or summary figures under the copy. */
-  children?: ReactNode;
+  children?: ReactNode; // optional buttons or figures under the copy
 }) {
   return (
     <div className="relative overflow-hidden bg-navy-950">
-      {/* Gold wash and faint grid — the brand treatment shared with the hero. */}
+      {/* gold wash + faint grid, shared with the hero */}
       <div
         aria-hidden
         className="absolute inset-0 bg-[radial-gradient(70%_60%_at_15%_0%,rgba(210,154,21,0.2),transparent)]"

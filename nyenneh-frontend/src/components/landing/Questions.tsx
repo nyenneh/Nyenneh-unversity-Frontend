@@ -8,11 +8,9 @@ import { faqs, registrationSteps } from "@/content/faqs";
 import { useReveal } from "@/hooks/useReveal";
 import { cn } from "@/lib/utils";
 
-/**
- * The questions the registry answers by phone twenty times a week: how do I
- * register, when does it open, why is mine still pending, why am I blocked.
- * The full set lives on /questions; this is the short answer.
- */
+// The ones the registry answers on the phone over and over: how do I register,
+// when does it open, why is mine still pending, why am I blocked. Full set is
+// on /questions, this is just the short version.
 const topQuestionIds = [
   "how-to-register",
   "registration-window",
@@ -26,7 +24,6 @@ const topQuestions = topQuestionIds
   .map((id) => faqs.find((faq) => faq.id === id))
   .filter((faq) => faq !== undefined);
 
-/** One registration step, easing in as the list is walked down. */
 function Step({ step, index }: { step: (typeof registrationSteps)[number]; index: number }) {
   const {
     ref: revealRef,
@@ -52,7 +49,7 @@ function Step({ step, index }: { step: (typeof registrationSteps)[number]; index
 
 export function Questions() {
   return (
-    <Section id="questions" className="bg-white" aria-labelledby="questions-heading">
+    <Section id="questions" className="bg-white py-16 sm:py-20" aria-labelledby="questions-heading">
       <Reveal>
         <SectionHeading
           id="questions-heading"
@@ -62,8 +59,8 @@ export function Questions() {
         />
       </Reveal>
 
-      <div className="mt-12 grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
-        {/* Registering for a semester, end to end. */}
+      <div className="mt-10 grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
+        {/* registering for a semester, start to finish */}
         <div>
           <h3 className="text-lg font-semibold text-ink-900">
             Registering for a semester
@@ -76,7 +73,7 @@ export function Questions() {
           </ol>
         </div>
 
-        {/* The questions those five steps still leave open. */}
+        {/* what those five steps still leave people asking */}
         <div>
           <h3 className="text-lg font-semibold text-ink-900">Asked most often</h3>
 

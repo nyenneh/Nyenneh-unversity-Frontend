@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-/** Merge conditional class names, letting later Tailwind classes win. */
+// merge class names, later tailwind classes win
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -37,7 +37,7 @@ export function formatDateTime(value: string | null | undefined) {
   });
 }
 
-/** "14:30" -> "2:30 PM" */
+// "14:30" -> "2:30 PM"
 export function formatTime(value: string) {
   const [hours, minutes] = value.split(":").map(Number);
   const suffix = hours >= 12 ? "PM" : "AM";
@@ -60,7 +60,7 @@ export function initials(fullName: string) {
     .join("");
 }
 
-/** Landing page for a role, used after login and by the "/" redirect. */
+// where each role lands after login
 export function homePathForRole(role: string) {
   if (role === "student") return "/student/dashboard";
   if (role === "lecturer") return "/lecturer/dashboard";

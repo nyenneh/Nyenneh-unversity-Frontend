@@ -7,8 +7,7 @@ import type { AuthTokens, Role, User } from "@/types";
 
 interface AuthState {
   user: User | null;
-  /** False until the persisted session has been read back from storage. */
-  hydrated: boolean;
+  hydrated: boolean; // false until the saved session has been read back
   setHydrated: () => void;
   isAuthenticated: () => boolean;
   hasRole: (...roles: Role[]) => boolean;
@@ -46,8 +45,8 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "nyenneh.auth",
-      // Tokens live in tokenStorage; only the profile is mirrored here so the
-      // shell can render immediately on reload without waiting for /auth/me/.
+      // tokens live in tokenStorage. we only keep the profile here so the shell
+      // can paint on reload without waiting for /auth/me/ to come back.
       partialize: (state) => ({ user: state.user }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
@@ -56,5 +55,5 @@ export const useAuthStore = create<AuthState>()(
   ),
 );
 
-// A refresh failure anywhere in the app drops the session immediately.
+// a failed refresh anywhere in the app drops the session there and then
 setSessionExpiredHandler(() => useAuthStore.getState().signOut());

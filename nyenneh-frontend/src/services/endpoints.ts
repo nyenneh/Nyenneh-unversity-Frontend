@@ -1,9 +1,5 @@
-/**
- * Every backend path the portal talks to, in one place.
- *
- * These mirror the Django URLconf exactly. Nothing else in the app hard-codes a
- * URL, so a route change on the server is a one-file change here.
- */
+// Every backend path in one place, mirroring the Django URLconf. Nothing else
+// in the app hard-codes a URL, so a route change on the server is one edit here.
 export const endpoints = {
   auth: {
     login: "auth/login/",
@@ -38,34 +34,28 @@ export const endpoints = {
   slots: {
     list: "academic/class-slots/",
     detail: (id: number) => `academic/class-slots/${id}/`,
-    /** Class times for the signed-in student's approved courses. */
+    // class times for the signed-in student's approved courses
     mySchedule: "academic/class-slots/my-schedule/",
   },
   lecturers: {
-    /** The accounts list, filtered by role. */
-    list: "auth/users/",
-    /** Creates the account and its teaching load in one call. */
-    onboard: "academic/lecturers/",
+    list: "auth/users/", // filtered by role=LECTURER
+    onboard: "academic/lecturers/", // makes the account and the teaching load together
     detail: (id: number) => `auth/users/${id}/`,
-    /** Issues a fresh temporary password and emails it. */
     resendPassword: (id: number) => `auth/users/${id}/resend-password/`,
-    /** Puts a deactivated account back in service. */
     activate: (id: number) => `auth/users/${id}/activate/`,
   },
   allocations: {
     list: "academic/allocations/",
     detail: (id: number) => `academic/allocations/${id}/`,
-    /** Gives one lecturer a whole teaching load; safe to re-submit. */
+    // hands one lecturer a whole load at once, safe to re-submit
     assign: "academic/allocations/assign/",
   },
   attendance: {
     meetings: "attendance/meetings/",
     meetingDetail: (id: number) => `attendance/meetings/${id}/`,
-    /** The class list for one meeting, marked or not. */
     register: (id: number) => `attendance/meetings/${id}/register/`,
     takeRegister: "attendance/records/take-register/",
     courseSummary: "attendance/records/course-summary/",
-    /** The signed-in student's own attendance, course by course. */
     myAttendance: "attendance/records/my-attendance/",
   },
   quizzes: {
@@ -74,7 +64,6 @@ export const endpoints = {
     markSheet: (id: number) => `quizzes/quizzes/${id}/mark-sheet/`,
     scores: "quizzes/scores/",
     bulkEntry: "quizzes/scores/bulk-entry/",
-    /** Quiz performance scaled to a suggested CA mark. */
     suggestedCa: "quizzes/scores/suggested-ca/",
     myScores: "quizzes/scores/my-scores/",
   },
@@ -93,20 +82,19 @@ export const endpoints = {
     list: "grades/results/",
     detail: (id: number) => `grades/results/${id}/`,
     publish: "grades/results/publish/",
-    /** The class list for a course with marks so far, plus CA suggestions. */
+    // class list for a course with the marks so far and the CA suggestions
     markSheet: "grades/results/mark-sheet/",
     bulkEntry: "grades/results/bulk-entry/",
-    /** Published results plus the GPA/CGPA summary, per semester. */
     myResults: "grades/semester-results/my-results/",
   },
   finance: {
     invoices: "finance/invoices/",
     invoiceDetail: (id: number) => `finance/invoices/${id}/`,
-    /** Bills a session's fee structure to a student or a whole cohort. */
+    // bills a session's fee structure to one student or a whole cohort
     generateInvoices: "finance/invoices/generate/",
     payments: "finance/payments/",
     confirmPayment: (id: number) => `finance/payments/${id}/confirm/`,
-    /** Student settles their own balance; the server allocates it to invoices. */
+    // student pays off their balance, the server decides which invoices it clears
     pay: "finance/invoices/pay/",
   },
   dashboard: {

@@ -69,7 +69,7 @@ export function EmptyState({
   );
 }
 
-/** Row placeholders sized to a table, shown while the first page loads. */
+// placeholder rows sized to the table, for the first load
 export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: number }) {
   return (
     <tbody>

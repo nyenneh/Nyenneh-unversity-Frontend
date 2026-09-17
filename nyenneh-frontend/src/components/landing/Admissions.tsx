@@ -28,7 +28,6 @@ const dates = [
   { label: "Semester begins", value: "24 November" },
 ];
 
-/** One numbered step, easing in as the list is walked down. */
 function Step({ step, index }: { step: (typeof steps)[number]; index: number }) {
   const {
     ref: revealRef,
@@ -52,7 +51,6 @@ function Step({ step, index }: { step: (typeof steps)[number]; index: number }) 
   );
 }
 
-/** Key dates panel, revealed alongside the steps beside it. */
 function Aside() {
   const {
     ref: revealRef,
@@ -98,9 +96,18 @@ function Aside() {
 }
 
 export function Admissions() {
+  // admissions and questions are both "how do I actually do this", so they sit
+  // closer together than the sections either side of them
   return (
-    <Section id="admissions" aria-labelledby="admissions-heading">
-      <div className="grid gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+    <Section
+      id="admissions"
+      width="narrow"
+      className="py-16 sm:py-20"
+      aria-labelledby="admissions-heading"
+    >
+      {/* items-start, or the key dates card stretches to match the steps and
+          trails a few hundred px of empty white below itself */}
+      <div className="grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
         <div>
           <Reveal>
             <SectionHeading

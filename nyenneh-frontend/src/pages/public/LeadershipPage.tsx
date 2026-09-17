@@ -7,10 +7,8 @@ import { Section, SectionHeading } from "@/components/landing/Section";
 import { Reveal } from "@/components/shared/Reveal";
 import { council, deans, principalOfficers } from "@/content/leadership";
 
-/**
- * Who runs the university, in the order the statutes put them: the principal
- * officers, then the deans, then the council they all answer to.
- */
+// Who runs the place, in the order the statutes put them: principal officers,
+// then deans, then the council they all answer to.
 export default function LeadershipPage() {
   return (
     <>
@@ -86,7 +84,7 @@ export default function LeadershipPage() {
         </div>
       </Section>
 
-      {/* Gold band, navy type — the same closing move as the landing page. */}
+      {/* gold band to close, same as the landing page */}
       <div className="bg-brand-500">
         <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <Reveal className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">

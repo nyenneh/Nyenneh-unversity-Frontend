@@ -10,11 +10,9 @@ import { Modal } from "@/components/ui/Modal";
 import { departments } from "@/content/departments";
 import { whatsappConfigured, whatsappLink } from "@/lib/whatsapp";
 
-/** Read off the Academics slideshow, so the two can never disagree about
-    what the university admits into. */
+// taken off the Academics slideshow so the two can't disagree
 const programmes = departments.map((department) => department.name);
 
-/** The intake the landing page is advertising. */
 const intake = "2026/2027 first semester";
 
 const schema = z.object({
@@ -23,7 +21,7 @@ const schema = z.object({
     .string()
     .trim()
     .min(1, "Enter the number you use on WhatsApp")
-    // Digits, spaces and the usual separators; the count is what matters.
+    // let people type spaces, dashes, brackets - we only count the digits
     .refine((value) => (value.match(/\d/g) ?? []).length >= 7, "Enter a valid phone number"),
   email: z.union([z.string().trim().email("Enter a valid email address"), z.literal("")]),
   programme: z.string().min(1, "Choose a programme"),
@@ -32,7 +30,6 @@ const schema = z.object({
 
 type ApplyForm = z.infer<typeof schema>;
 
-/** Builds the click-to-chat link with the enquiry already typed out. */
 function buildWhatsappLink(values: ApplyForm) {
   return whatsappLink([
     "Hello Nyenneh University, I would like to apply for admission.",
@@ -53,8 +50,8 @@ interface ApplyModalProps {
 }
 
 export function ApplyModal({ open, onClose }: ApplyModalProps) {
-  // Kept so the confirmation step can offer the link again when the browser
-  // blocks the popup — which it will, if the tab lost the user gesture.
+  // keep the link so the confirmation can offer it again - the browser blocks
+  // the popup if the tab has lost the user gesture by then
   const [sentLink, setSentLink] = useState<string | null>(null);
 
   const {
@@ -67,9 +64,8 @@ export function ApplyModal({ open, onClose }: ApplyModalProps) {
     defaultValues: { fullName: "", phone: "", email: "", programme: "", message: "" },
   });
 
-  // Clear on the way out, so reopening starts on a blank form rather than the
-  // last applicant's answers. Modal calls onClose for Escape and the backdrop
-  // too, so every path through the dialog lands here.
+  // reset on the way out so reopening isn't showing the last person's answers.
+  // Modal calls onClose for Escape and the backdrop too, so everything ends up here.
   const handleClose = () => {
     setSentLink(null);
     reset();

@@ -13,7 +13,7 @@ import {
 import { queryKeys } from "./queryKeys";
 import { useMutationWithToast } from "./useMutationWithToast";
 
-// --- dashboard & teaching load --------------------------------------------
+// --- dashboard & teaching load ---
 
 export function useLecturerDashboard() {
   return useQuery({
@@ -34,8 +34,8 @@ export function useAssignCourses() {
   return useMutationWithToast({
     mutationFn: (input: AssignCoursesInput) => lecturerService.assignCourses(input),
     invalidates: [queryKeys.allocations.all, queryKeys.dashboard.all],
-    // The server reports what actually changed, which is more useful than a
-    // generic "saved" when re-submitting an unchanged load.
+    // the server says what actually changed, which beats a generic "saved"
+    // when someone re-submits a load they didn't touch
     successMessage: (result) => result.detail || "Teaching load updated.",
   });
 }
@@ -48,7 +48,7 @@ export function useRemoveAllocation() {
   });
 }
 
-// --- attendance -----------------------------------------------------------
+// --- attendance ---
 
 export function useMeetings(filters: { course?: number; semester?: number } = {}) {
   return useQuery({
@@ -74,7 +74,7 @@ export function useDeleteMeeting() {
   });
 }
 
-/** Enabled only once a meeting is chosen, so the list view fires no request. */
+// only enabled once a meeting is picked, so the list view fires nothing
 export function useRegister(meetingId: number | null) {
   return useQuery({
     queryKey: queryKeys.attendance.register(meetingId ?? 0),
@@ -100,7 +100,6 @@ export function useAttendanceSummary(course: number | null, semester?: number) {
   });
 }
 
-/** The signed-in student's own attendance. */
 export function useMyAttendance(semester?: number) {
   return useQuery({
     queryKey: queryKeys.attendance.mine,
@@ -108,7 +107,7 @@ export function useMyAttendance(semester?: number) {
   });
 }
 
-// --- quizzes --------------------------------------------------------------
+// --- quizzes ---
 
 export function useQuizzes(filters: { course?: number; semester?: number } = {}) {
   return useQuery({
@@ -147,14 +146,13 @@ export function useSaveQuizScores() {
   return useMutationWithToast({
     mutationFn: ({ quiz, entries }: { quiz: number; entries: QuizScoreEntry[] }) =>
       lecturerService.saveQuizScores(quiz, entries),
-    // The CA suggestion on the mark sheet is derived from these, so it has to
-    // refetch alongside them.
+    // the CA suggestion on the mark sheet comes off these, so refetch it too
     invalidates: [queryKeys.quizzes.all, queryKeys.markSheet.all, queryKeys.dashboard.all],
     successMessage: (scores) => `Recorded ${scores.length} score(s).`,
   });
 }
 
-// --- final marks ----------------------------------------------------------
+// --- final marks ---
 
 export function useMarkSheet(course: number | null, semester: number | null) {
   return useQuery({

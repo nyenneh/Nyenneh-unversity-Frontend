@@ -5,17 +5,14 @@ import { getErrorMessage } from "@/services/api";
 
 interface Options<TVariables, TData> {
   mutationFn: (variables: TVariables) => Promise<TData>;
-  /** Query key prefixes to refetch once the mutation succeeds. */
-  invalidates?: QueryKey[];
+  invalidates?: QueryKey[]; // key prefixes to refetch on success
   successMessage?: string | ((data: TData) => string);
   onSuccess?: (data: TData) => void;
 }
 
-/**
- * Every write in the portal reports the same way: toast on success, DRF error
- * translated to a sentence on failure, affected queries invalidated. Wrapping it
- * once keeps that consistent instead of repeating it in each page.
- */
+// Every write in the portal behaves the same: toast on success, DRF error
+// turned into a readable sentence on failure, affected queries invalidated.
+// Wrapping it once beats repeating all that on every page.
 export function useMutationWithToast<TVariables, TData>({
   mutationFn,
   invalidates = [],

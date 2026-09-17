@@ -2,9 +2,9 @@ import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { titleCase } from "@/lib/utils";
 import type { EnrollmentStatus, InvoiceStatus, StudentStatus } from "@/types";
 
-/** One place mapping every domain status to a colour, so tones never drift. */
+// every status -> colour in one place so the tones don't drift apart
 const tones: Record<string, BadgeTone> = {
-  // enrollment ("pending" is shared with an unpaid invoice, and reads the same)
+  // enrollment ("pending" is shared with invoices below, reads the same either way)
   registered: "success",
   rejected: "danger",
   dropped: "neutral",
@@ -14,7 +14,7 @@ const tones: Record<string, BadgeTone> = {
   graduated: "info",
   deferred: "warning",
   withdrawn: "neutral",
-  // invoice ("pending" is shared with an unconfirmed payment)
+  // invoice
   paid: "success",
   partial: "info",
   pending: "warning",

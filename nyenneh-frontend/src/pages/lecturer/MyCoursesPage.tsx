@@ -9,7 +9,7 @@ import { useAllocations } from "@/hooks/useLecturer";
 import { getErrorMessage } from "@/services/api";
 
 export default function MyCoursesPage() {
-  // The server scopes this to the signed-in lecturer, so no filter is needed.
+  // server already scopes this to whoever is signed in
   const { data, isPending, isError, error, refetch } = useAllocations({ is_active: true });
   const allocations = data ?? [];
 

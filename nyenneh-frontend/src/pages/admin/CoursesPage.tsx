@@ -34,7 +34,7 @@ const TERMS: { value: Semester; label: string }[] = [
 
 const TEACHING_DAYS: Weekday[] = ["monday", "tuesday", "wednesday", "thursday", "friday"];
 
-/** The lecture blocks the timetable is built from. */
+// the blocks the timetable is built out of
 const TIME_SLOTS = [
   { start: "08:00", end: "10:00" },
   { start: "10:00", end: "12:00" },
@@ -47,7 +47,7 @@ const TIME_SLOTS = [
   label: `${formatTime(slot.start)} - ${formatTime(slot.end)}`,
 }));
 
-/** Blank means no seat limit, which is why capacity is a string here. */
+// a string, not a number, because blank has to mean "no seat limit"
 const capacityField = z
   .string()
   .refine((value) => value === "" || Number(value) >= 1, "At least 1 seat");
@@ -99,13 +99,11 @@ const editSchema = z.object({
 
 type EditForm = z.input<typeof editSchema>;
 
-/** "" from the form means "no limit", which the API stores as null. */
+// "" from the form means no limit, which the API stores as null
 const toCapacity = (value: string) => (value.trim() === "" ? null : Number(value));
 
-/**
- * Seat usage, shown as "14 / 35" with a FULL flag once capacity is reached.
- * A course with no limit shows the headcount alone.
- */
+// "14 / 35", with a FULL flag once it fills up. A course with no limit just
+// shows the headcount.
 function SeatTracker({ enrolled, capacity }: { enrolled: number; capacity: number | null }) {
   if (capacity === null) {
     return (
@@ -175,14 +173,14 @@ export default function CoursesPage() {
     defaultValues: blankRegistry,
   });
 
-  // The code prefix mirrors whichever department is selected: ITE-[204].
-  // useWatch subscribes to the one field and returns a value, so the component
-  // stays memoizable (a bare watch() would opt it out of the React Compiler).
+  // prefix follows whichever department is picked: ITE-[204].
+  // useWatch, not watch() - watch() opts the component out of the React
+  // Compiler, useWatch just subscribes to the one field.
   const selectedDepartmentId = Number(useWatch({ control, name: "department" }));
   const codePrefix =
     departments.data?.find((item) => item.id === selectedDepartmentId)?.code ?? "—";
 
-  // Preselect the first department once the list arrives.
+  // preselect the first department once the list turns up
   useEffect(() => {
     if (!departments.data?.length) return;
     reset((current) =>
@@ -198,8 +196,7 @@ export default function CoursesPage() {
     createCourse.mutate(
       {
         course: {
-          // The registry writes codes as "CSC 204": the department's code,
-          // then the number the admin typed.
+          // registry writes codes as "CSC 204" - department code then the number
           code: `${department?.code ?? ""} ${parsed.code_number}`.trim(),
           title: parsed.title,
           description: parsed.description,
@@ -270,7 +267,7 @@ export default function CoursesPage() {
         }
       />
 
-      {/* ---- Add to registry -------------------------------------------- */}
+      {/* ---- add to registry ---- */}
       <Card className="mb-6">
         <CardHeader
           title={
@@ -457,7 +454,7 @@ export default function CoursesPage() {
         </form>
       </Card>
 
-      {/* ---- Live inventory --------------------------------------------- */}
+      {/* ---- live inventory ---- */}
       <Card className={cn(isFetching && !isPending && "opacity-70 transition-opacity")}>
         <CardHeader
           title="Course inventory &amp; seat tracker"
